@@ -13,6 +13,7 @@
 - 브라우저 자동 저장, JSON 저장·불러오기
 
 ## 사용법
+- 📖 **작성 방법**: 앱 상단의 「작성 방법」 버튼 또는 `manual.html` — 화면 사진과 함께 단계별로 안내
 - 바로 쓰기: `index.html`을 내려받아 브라우저로 열기
 - 웹에 올리기: 저장소 **Settings → Pages → Branch: `main` / root** 를 선택하면 `https://<사용자명>.github.io/Jidoan/` 에서 열 수 있음
 

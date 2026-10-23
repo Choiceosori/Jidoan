@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>작성 방법 · 교수·학습 과정안 만들기</title>
+<style>
+:root{
+  --bg:#f4f6fa; --card:#ffffff; --ink:#1f2937; --muted:#6b7280; --line:#e2e8f0;
+  --brand:#2f5bd3; --brand-weak:#e8eefc; --accent:#0f8a6a; --mark:#e5484d;
+  --warn-bg:#fff8e6; --warn-line:#f5d27a; --radius:14px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",sans-serif;font-size:16.5px;line-height:1.75;word-break:keep-all}
+a{color:var(--brand)}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:12px 20px;background:#fff;border-bottom:1px solid var(--line)}
+.topbar .logo{font-weight:800;font-size:16px;margin-right:auto}
+.btn{display:inline-block;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 14px;font-weight:600;color:var(--ink);text-decoration:none;font-size:14px}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+
+.layout{display:grid;grid-template-columns:240px minmax(0,1fr);gap:28px;max-width:1180px;margin:0 auto;padding:24px 20px 80px}
+.toc{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 96px);overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 10px}
+.toc b{display:block;font-size:13px;color:var(--muted);padding:0 10px 6px}
+.toc a{display:block;padding:5px 10px;border-radius:8px;color:var(--ink);text-decoration:none;font-size:14.5px;line-height:1.45}
+.toc a:hover,.toc a.on{background:var(--brand-weak);color:var(--brand)}
+.toc .sub{padding-left:22px;font-size:14px}
+
+main{min-width:0}
+.hero{background:linear-gradient(135deg,#2f5bd3,#4f7be8);color:#fff;border-radius:var(--radius);padding:30px 32px;margin-bottom:22px}
+.hero h1{margin:0 0 8px;font-size:28px;line-height:1.35}
+.hero p{margin:0;opacity:.95}
+.flow{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+.flow span{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:3px 12px;font-size:14px;font-weight:600}
+
+section{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:28px 32px;margin-bottom:22px}
+section h2{margin:0 0 6px;font-size:23px;line-height:1.4;display:flex;align-items:center;gap:10px}
+section h2 .no{display:inline-grid;place-items:center;min-width:34px;height:34px;padding:0 8px;border-radius:10px;background:var(--brand);color:#fff;font-size:16px}
+section h3{font-size:18px;margin:26px 0 8px}
+.lead{color:var(--muted);margin:0 0 16px}
+
+figure{margin:16px 0 8px}
+figure img{display:block;max-width:100%;height:auto;border:1px solid var(--line);border-radius:12px;box-shadow:0 2px 12px rgba(15,23,42,.08);cursor:zoom-in;margin:0 auto}
+figure.narrow img{max-width:640px;width:100%}
+figcaption{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
+
+ol.marks{list-style:none;padding:0;margin:14px 0 0;counter-reset:m}
+ol.marks li{counter-increment:m;position:relative;padding:8px 0 8px 44px;border-bottom:1px dashed var(--line)}
+ol.marks li:last-child{border-bottom:0}
+ol.marks li::before{content:counter(m);position:absolute;left:0;top:9px;width:28px;height:28px;border-radius:50%;background:var(--mark);color:#fff;font-weight:800;font-size:15px;line-height:28px;text-align:center}
+ol.marks b{color:#111827}
+
+.tip,.warn,.key{border-radius:12px;padding:14px 18px;margin:16px 0;font-size:15.5px}
+.tip{background:var(--brand-weak)}
+.warn{background:var(--warn-bg);border:1px solid var(--warn-line)}
+.key{background:#e9f7f2;border:1px solid #b7e4d3}
+.tip > b:first-child,.warn > b:first-child,.key > b:first-child{display:block;margin-bottom:2px}
+.tip ul,.warn ul,.key ul{margin:4px 0 0;padding-left:20px}
+
+table.sym{width:100%;border-collapse:collapse;margin:12px 0;font-size:15.5px}
+table.sym th,table.sym td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+table.sym th{background:#f1f4f9;font-weight:700}
+table.sym td:first-child{white-space:nowrap;font-weight:700;width:150px}
+code{background:#f1f4f9;border-radius:6px;padding:1px 6px;font-size:.92em}
+.steps{counter-reset:s;list-style:none;padding:0;margin:12px 0}
+.steps li{counter-increment:s;position:relative;padding:10px 0 10px 46px}
+.steps li::before{content:counter(s);position:absolute;left:0;top:8px;width:32px;height:32px;border-radius:10px;background:var(--accent);color:#fff;font-weight:800;line-height:32px;text-align:center}
+
+details.faq{border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:10px 0;background:#fbfcfe}
+details.faq summary{font-weight:700;cursor:pointer}
+details.faq p{margin:8px 0 0}
+
+.foot{text-align:center;color:var(--muted);font-size:14px;margin-top:10px}
+.lightbox{position:fixed;inset:0;background:rgba(15,23,42,.85);display:none;align-items:center;justify-content:center;z-index:50;padding:20px;cursor:zoom-out}
+.lightbox.open{display:flex}
+.lightbox img{max-width:100%;max-height:100%;border-radius:10px;background:#fff}
+
+@media (max-width:900px){
+  .layout{grid-template-columns:minmax(0,1fr);padding:16px 16px 60px}
+  .toc{position:static;max-height:none}
+  section{padding:22px 18px}
+  .hero{padding:24px 20px}
+  .hero h1{font-size:23px}
+  table.sym td:first-child{white-space:normal;width:auto}
+}
+@media print{
+  .topbar,.toc{display:none}
+  .layout{display:block;padding:0}
+  section{break-inside:avoid-page;border:0}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="logo">📖 작성 방법</span>
+  <a class="btn primary" href="index.html">← 과정안 만들러 가기</a>
+</header>
+
+<div class="layout">
+  <nav class="toc" id="toc">
+    <b>목차</b>
+    <a href="#start">시작하기 전에</a>
+    <a href="#home">홈 화면</a>
+    <a href="#layout">작성 화면 둘러보기</a>
+    <a class="sub" href="#s1">1단계 · 기본 정보</a>
+    <a class="sub" href="#s2">2단계 · 평가</a>
+    <a class="sub" href="#s3">3단계 · AI·디지털 도구</a>
+    <a class="sub" href="#s4">4단계 · 목표·의도·질문</a>
+    <a class="sub" href="#s5">5단계 · 교수·학습 활동</a>
+    <a class="sub" href="#s6">6단계 · 미리보기·출력</a>
+    <a href="#ai">🤖 AI 초안 도우미</a>
+    <a href="#result">완성된 과정안</a>
+    <a href="#faq">자주 묻는 질문</a>
+  </nav>
+
+  <main>
+    <div class="hero" id="start">
+      <h1>질문이 넘치는 교수·학습 과정안,<br>이렇게 만들어요</h1>
+      <p>칸을 차례대로 채우기만 하면 학교 지도안 양식(A4 세로)이 자동으로 완성되고, DOCX 파일로 내려받아 한글·워드에서 바로 고칠 수 있어요.</p>
+      <div class="flow"><span>① 기본 정보</span><span>② 평가</span><span>③ AI·디지털 도구</span><span>④ 목표·의도·질문</span><span>⑤ 교수·학습 활동</span><span>⑥ 미리보기·출력</span></div>
+    </div>
+
+    <section>
+      <h2>시작하기 전에</h2>
+      <div class="key"><b>💡 꼭 알아 두세요</b>
+        <ul>
+          <li><b>회원 가입·설치가 필요 없어요.</b> 인터넷 창(크롬·엣지 등)에서 바로 열립니다.</li>
+          <li><b>입력한 내용은 자동 저장</b>돼요. 단, 지금 쓰는 <b>컴퓨터의 이 브라우저에만</b> 저장되니, 다른 컴퓨터에서 이어 쓰려면 <b>💾 JSON 저장</b>으로 파일을 받아 두세요.</li>
+          <li>순서는 <b>백워드 설계</b>를 따라요. 학생이 도달할 모습(평가)을 먼저 정하고, 그다음 도구·목표를 정한 뒤, 마지막에 활동을 설계합니다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="home">
+      <h2>홈 화면</h2>
+      <p class="lead">처음 열면 보이는 화면이에요. 세 가지 방법 중 하나로 시작합니다.</p>
+      <figure><img src="manual/img/01-home.png" alt="홈 화면"><figcaption>홈 화면 (그림을 누르면 크게 볼 수 있어요)</figcaption></figure>
+      <ol class="marks">
+        <li><b>새 과정안 만들기</b> — 빈 양식에서 시작해요. 기본 틀(도입·전개·정리)이 미리 들어 있어요.</li>
+        <li><b>예시안으로 시작하기</b> — 4학년 사회 「우리 지역 국가유산 조사하기」 예시가 채워진 상태로 열려요. 처음이라면 예시를 열어 칸마다 무엇을 쓰는지 살펴본 뒤 고쳐 쓰는 방법을 추천해요.</li>
+        <li><b>JSON 파일 불러오기</b> — 전에 💾 JSON 저장으로 받아 둔 파일을 열어 이어서 작성해요.</li>
+        <li><b>📖 작성 방법</b> — 지금 보고 계신 이 안내서를 새 창으로 열어요. 작성 중에도 언제든 누를 수 있어요.</li>
+      </ol>
+      <div class="tip"><b>✍️ 작성 중인 과정안이 있으면</b>홈 화면 맨 위에 노란색 「작성 중인 과정안이 있어요」 상자가 나타나요. <b>이어서 작성 →</b>을 누르면 마지막으로 작업한 단계로 돌아갑니다.</div>
+    </section>
+
+    <section id="layout">
+      <h2>작성 화면 둘러보기</h2>
+      <p class="lead">시작하면 아래와 같은 화면이 나와요. 왼쪽에 입력하면 오른쪽 양식이 바로 바뀝니다.</p>
+      <figure><img src="manual/img/02-layout.png" alt="작성 화면 구성"><figcaption>작성 화면 구성</figcaption></figure>
+      <ol class="marks">
+        <li><b>단계 표시줄</b> — 지금 어느 단계인지 보여 줘요. 원하는 단계 이름을 눌러 바로 이동할 수 있고, 지나온 단계에는 ✓ 표시가 붙어요.</li>
+        <li><b>입력 영역</b> — 단계별 입력 칸이에요. 회색 예시 글자(안내 문구)를 참고해서 쓰세요. 맨 아래 <b>다음 →</b> 버튼으로 다음 단계로 넘어가요.</li>
+        <li><b>실시간 미리보기</b> — 실제 출력될 A4 세로 양식이에요. 입력하는 즉시 반영돼요. (화면이 좁은 노트북·태블릿에서는 6단계에서만 보여요.)</li>
+        <li><b>🤖 AI 초안 도우미</b> — 챗GPT·제미나이·클로드 등에 붙여 넣을 프롬프트를 만들어 줘요. <a href="#ai">자세한 방법 보기</a></li>
+        <li><b>💾 JSON 저장</b> — 작성 내용을 파일로 내려받아요. 다른 컴퓨터에서 이어 쓰거나 백업할 때 사용해요.</li>
+        <li><b>자동 저장됨 ✓</b> — 입력할 때마다 자동으로 저장되고 있다는 표시예요.</li>
+      </ol>
+    </section>
+
+    <section id="s1">
+      <h2><span class="no">1</span>기본 정보</h2>
+      <p class="lead">과정안 맨 위 표(일시·대상·지도교사·단원·차시·장소)에 들어가는 내용이에요.</p>
+      <figure class="narrow"><img src="manual/img/03-step1.png" alt="1단계 기본 정보"><figcaption>1단계 · 기본 정보</figcaption></figure>
+      <ol class="marks">
+        <li><b>교과</b> — 목록에서 고르면 제목 「질문이 넘치는 ( <u>사회</u> )과 교수·학습 과정안」에 자동으로 들어가요.</li>
+        <li><b>일시</b> — 「4월 15일(화) 3교시」처럼 자유롭게 써요.</li>
+        <li><b>대상(학년 반)</b> — 「4학년 2반」처럼 써요.</li>
+        <li><b>남·여학생 수</b> — 숫자만 넣으면 양식에 「남: 12, 여: 11 (계: 23명)」처럼 <b>합계가 자동 계산</b>돼요.</li>
+        <li><b>수업 시간</b> — 40분(1차시) 또는 80분(2차시 블록)을 골라요. 양식에는 나오지 않지만 5단계 시간 합계 점검과 AI 프롬프트에 쓰여요.</li>
+      </ol>
+    </section>
+
+    <section id="s2">
+      <h2><span class="no">2</span>평가</h2>
+      <p class="lead">과정안 맨 아래 평가 표에 들어가요. 백워드 설계에 따라 <b>활동보다 평가를 먼저</b> 정합니다.</p>
+      <figure class="narrow"><img src="manual/img/04-step2.png" alt="2단계 평가"><figcaption>2단계 · 평가</figcaption></figure>
+      <ol class="marks">
+        <li><b>백워드 설계 안내</b> — "학생이 수업이 끝났을 때 무엇을 할 수 있어야 하는가?"를 먼저 떠올려 보세요.</li>
+        <li><b>평가 문항</b> — 「~하였는가?」 형태로 써요. 예: <i>우리 지역의 국가유산을 조사하여 그 역사적 의미를 설명하였는가?</i></li>
+        <li><b>상</b> — 가장 높은 수행 수준을 「~하였다.」로 써요. "다양한 자료를 비교하여 … <b>구체적으로</b> 설명하였다."</li>
+        <li><b>하</b> — "<b>도움을 받아</b> … <b>간단하게</b> 설명하였다."처럼 도움이 필요한 수준을 써요. (<b>중</b>은 그 사이)</li>
+        <li><b>방법·시기</b> — 칸을 누르면 「관찰 평가」, 「수업 중」 같은 추천 목록이 나와요. 직접 써도 돼요.</li>
+      </ol>
+    </section>
+
+    <section id="s3">
+      <h2><span class="no">3</span>AI·디지털 도구</h2>
+      <p class="lead">이 수업에서 쓸 AI·디지털 도구를 고르고, 어떻게 쓸지 적어요. 양식에 따로 칸은 없고, 5단계 <b>자료(□) 칸</b>과 <b>AI 프롬프트</b>에 반영돼요.</p>
+      <h3>도구 고르기</h3>
+      <figure class="narrow"><img src="manual/img/06-step3-catalog.png" alt="도구 목록"><figcaption>도구 목록 (7개 분야)</figcaption></figure>
+      <ol class="marks">
+        <li><b>분야 제목</b> — AI 피드백 수업, 협업 및 수업 강화, 수업 상호작용 & 퀴즈, 교과 특화 맞춤형 학습, 멀티미디어 & 생성형 창작, 메타버스, 평가 & 데이터 진단의 7개 분야로 나뉘어 있어요. 제목을 누르면 접고 펼 수 있어요.</li>
+        <li><b>선택된 도구</b> — 파란 배경과 ✓ 표시가 붙어요. 한 번 더 누르면 선택이 해제돼요.</li>
+        <li><b>도구 카드</b> — 도구 이름 아래에 간단한 설명이 있어요. 누르면 선택돼요.</li>
+      </ol>
+      <h3>활용 계획 쓰기</h3>
+      <figure class="narrow"><img src="manual/img/05-step3-selected.png" alt="선택한 도구와 활용 계획"><figcaption>선택한 도구와 활용 계획</figcaption></figure>
+      <ol class="marks">
+        <li><b>선택한 도구</b> — 고른 도구가 위쪽에 차례로 모여요.</li>
+        <li><b>이 수업에서의 활용 계획</b> — 도구를 <i>언제, 무엇을 위해</i> 쓰는지 한 줄로 적어요. 예: 「모둠별 소개 카드를 공유하고 질문·보완 댓글로 동료 피드백」</li>
+        <li><b>🗑 삭제</b> — 선택을 취소해요.</li>
+        <li><b>직접 추가</b> — 목록에 없는 도구(예: 스마트렌즈, 전자칠판)는 이름을 쓰고 <b>＋ 추가</b>를 눌러요.</li>
+      </ol>
+      <div class="tip"><b>🎯 도구 고르는 기준</b>2단계에서 정한 <b>평가에 도달하는 데 도움이 되는 도구</b>만 골라요. 도구는 '답을 주는 도구'가 아니라 <b>탐구를 돕는 도구</b>로 활용합니다. 많이 고르는 것보다 1~3개를 제대로 쓰는 편이 좋아요.</div>
+    </section>
+
+    <section id="s4">
+      <h2><span class="no">4</span>목표·의도·질문</h2>
+      <p class="lead">양식 위쪽의 「학습목표」, 「성취기준」, 「수업자 의도」, 「핵심 질문」 칸이에요.</p>
+      <figure class="narrow"><img src="manual/img/07-step4.png" alt="4단계 목표·의도·질문"><figcaption>4단계 · 목표·의도·질문</figcaption></figure>
+      <ol class="marks">
+        <li><b>학습목표</b> — 「~할 수 있다.」로 끝나는 1~2문장. 2단계 평가 문항과 내용이 맞아야 해요.</li>
+        <li><b>성취기준</b> — 「[4사06-01] …」처럼 코드와 함께 써요. 여러 개면 줄을 바꿔 써요.</li>
+        <li><b>수업자 의도</b> — 수업 흐름(도입-전개-정리)을 설명하는 칸이 <b>아니에요</b>. 성취기준·교과 역량·학생 실태를 근거로 <b>학습 방법, 자료, 내용 재구성, 발문 중 무엇에 초점을 두었는지</b> 써요.</li>
+        <li><b>핵심 질문</b> — 수업 전체를 이끄는 질문. <b>1~2개</b>까지 쓸 수 있어요.</li>
+        <li><b>제시 단계</b> — 그 질문을 어느 단계에서 던질지 적어요. 칸을 누르면 「도입」, 「전개(활동1)」 같은 추천이 나와요.</li>
+      </ol>
+      <div class="warn"><b>⚠️ 수업자 의도에서 흔히 하는 실수</b>"도입에서는 ~하고, 전개에서는 ~한다."처럼 흐름을 나열하지 마세요. 6단계 작성 점검에서 ⚠️로 알려 줘요.</div>
+    </section>
+
+    <section id="s5">
+      <h2><span class="no">5</span>교수·학습 활동</h2>
+      <p class="lead">양식의 가장 큰 부분이에요. 학습 문제를 쓰고, 도입·전개·정리별로 활동과 자료·유의점·평가를 적어요.</p>
+
+      <h3>① 학습 문제</h3>
+      <figure class="narrow"><img src="manual/img/08-step5-problem.png" alt="학습 문제"><figcaption>학습 문제 입력</figcaption></figure>
+      <ol class="marks">
+        <li><b>❶❷❸ · 밑줄 버튼</b> — 번호 버튼은 커서 위치에 번호를 넣어요. 낱말을 드래그해 선택한 뒤 <b>__밑줄__</b>을 누르면 그 낱말에 밑줄이 그어져요.</li>
+        <li><b>학습 문제 칸</b> — 예: 「❶우리 지역의 __국가유산__을 조사하고 ❷그 __역사적 의미__를 설명해 봅시다.」 → 양식에서는 <b>도입의 「▣ 학습 문제 확인하기」 줄 바로 아래에 상자</b>로 들어가요.</li>
+      </ol>
+
+      <h3>② 활동 행 쓰기</h3>
+      <figure class="narrow"><img src="manual/img/09-step5-row.png" alt="활동 행"><figcaption>활동 행 (도입)</figcaption></figure>
+      <ol class="marks">
+        <li><b>시간 합계</b> — 모든 행의 시간을 더해 보여 줘요. 1단계에서 고른 수업 시간(40분/80분)과 다르면 <b>빨간색</b>으로 바뀌어요.</li>
+        <li><b>학습 과정</b> — 도입·전개·정리 중에 써요(칸을 누르면 목록이 나와요).</li>
+        <li><b>시간(분)</b> — 숫자만 써요. 도입은 <b>최대 5분</b>이 권장돼요.</li>
+        <li><b>활동 기호 버튼</b> — 누르면 커서 위치에 기호가 들어가요. 아래 「입력 기호 한눈에 보기」 표를 참고하세요.</li>
+        <li><b>교수·학습 활동 칸</b> — 한 줄에 하나씩, 맨 앞 기호에 따라 양식에서 자동으로 들여쓰기·굵게 처리돼요.</li>
+        <li><b>자료·유의점·평가 버튼</b> — □ 자료, ※ 유의점, ☑ 평가 기호를 넣어요.</li>
+        <li><b>자료(□)·유의점(※)·평가(☑) 칸</b> — 양식 오른쪽 칸에 들어가요. <b>AI·디지털 도구는 □</b>, <b>AI 활용 유의사항은 ※</b>, <b>과정중심평가는 ☑</b>로 적어요.</li>
+        <li><b>↑ ↓ 🗑</b> — 행 순서를 바꾸거나 지워요. 맨 아래 <b>＋ 행 추가</b>로 행을 늘릴 수 있어요(예: 전개를 활동1·활동2 두 행으로 나누기).</li>
+      </ol>
+
+      <h3>입력 기호 한눈에 보기</h3>
+      <table class="sym">
+        <tr><th>입력</th><th>뜻</th><th>양식에서는</th></tr>
+        <tr><td><code>▣ </code></td><td>큰 활동 (형식 요소보다 <b>내용 요소</b>로)</td><td>굵게, 들여쓰기 없음</td></tr>
+        <tr><td><code>▪ </code></td><td>세부 활동 (~떠올리기, ~알아보기)</td><td>한 칸 들여쓰기</td></tr>
+        <tr><td><code>- </code></td><td>하위 내용, 발문</td><td>두 칸 들여쓰기</td></tr>
+        <tr><td><code>【활동1】</code></td><td>전개 활동 번호 (최대 2개)</td><td>굵게</td></tr>
+        <tr><td><code>- 발문: </code></td><td>핵심 발문 (전개에 2~3개)</td><td>그대로 표시, 개수 점검</td></tr>
+        <tr><td><code>[모둠]</code> <code>[전체]</code> <code>[짝]</code> <code>[개인]</code> <code>[모둠+전체]</code></td><td>학습 형태</td><td>테두리 상자로 표시</td></tr>
+        <tr><td><code>__낱말__</code></td><td>중심 낱말</td><td>밑줄</td></tr>
+        <tr><td><code>□</code> <code>※</code> <code>☑</code></td><td>자료 · 유의점 · 평가</td><td>오른쪽 칸에 그대로</td></tr>
+      </table>
+
+      <div class="tip"><b>📝 양식 작성 안내 (화면 위 파란 상자와 같은 내용)</b>
+        <ul>
+          <li><b>도입</b>: 최대 5분, 본시 내용으로 동기유발, 동기유발 자료를 전개에서 다시 활용, 학습 문제 중심 낱말에 밑줄, 학습 순서는 번호로</li>
+          <li><b>전개</b>: 활동 최대 2개, 핵심 발문 2~3개, 짝·모둠·전체 활동, 삶과 연결하기, 학습자 중심 용어, 과정중심평가(☑) 명시</li>
+          <li><b>정리</b>: 학습 문제 다시 알아보기, 알게 된 점(느낀 점·어려움·즐거움·궁금함 중 선택), 친구와 함께 공부하며 도움받은 것, 생활과 연결하기 — <b>차시 예고는 쓰지 않아요</b></li>
+        </ul>
+      </div>
+
+      <h3>③ 자주 쓰는 문구 · 선택한 도구</h3>
+      <figure class="narrow"><img src="manual/img/10-step5-presets.png" alt="자주 쓰는 문구"><figcaption>자주 쓰는 유의점 문구와 선택한 도구 버튼</figcaption></figure>
+      <ol class="marks">
+        <li><b>자주 쓰는 유의점(※)</b> — AI 결과의 신뢰성 확인, 저작권·출처, 개인정보, 디지털 시민성 등 자주 쓰는 문구를 한 번에 넣어요. <b>전개 행</b>의 자료·유의점 칸 끝에 추가돼요.</li>
+        <li><b>선택한 AI·디지털 도구(□)</b> — 3단계에서 고른 도구가 버튼으로 나와요. 누르면 「□ 도구 이름」이 전개 행에 추가돼요.</li>
+      </ol>
+    </section>
+
+    <section id="s6">
+      <h2><span class="no">6</span>미리보기·출력</h2>
+      <p class="lead">작성 점검을 확인하고 파일로 내려받아요.</p>
+      <figure class="narrow"><img src="manual/img/11-step6.png" alt="6단계 출력"><figcaption>6단계 · 미리보기·출력</figcaption></figure>
+      <ol class="marks">
+        <li><b>📄 DOCX 다운로드</b> — 완성된 과정안을 워드 파일(.docx)로 받아요. <b>한글(HWP)과 MS워드 모두</b>에서 열어 고칠 수 있어요.</li>
+        <li><b>💾 JSON 저장</b> — 나중에 이 프로그램에서 다시 열어 고칠 수 있는 파일이에요. DOCX와 함께 받아 두면 좋아요.</li>
+        <li><b>작성 점검</b> — 양식 규칙을 자동으로 확인해요. ✅는 잘 된 항목, ⚠️는 다시 살펴볼 항목이에요. ⚠️가 있어도 다운로드는 할 수 있어요.</li>
+      </ol>
+      <div class="tip"><b>✅ 작성 점검 항목</b>
+        <ul>
+          <li>교과·단원·차시, 학습목표, 성취기준, 학습 문제를 입력했는가</li>
+          <li>수업자 의도가 흐름 설명이 아닌가 · 핵심 질문이 1~2개이고 제시 단계를 적었는가</li>
+          <li>시간 합계가 맞는가 · 도입 5분 이내 · 전개 활동 2개 이내 · 발문 2~3개 · 학습 형태 표시</li>
+          <li>☑ 평가와 ※ 유의점을 적었는가 · 정리에 차시 예고가 없는가</li>
+          <li>AI·디지털 도구를 골랐고, 고른 도구가 활동·자료 칸에 모두 나오는가</li>
+          <li>평가 문항과 상·중·하 기준을 모두 썼는가</li>
+        </ul>
+      </div>
+      <h3>오른쪽 미리보기</h3>
+      <figure class="narrow"><img src="manual/img/12-preview.png" alt="미리보기"><figcaption>실시간 미리보기 — DOCX와 같은 배치로 보여 줘요</figcaption></figure>
+    </section>
+
+    <section id="ai">
+      <h2>🤖 AI 초안 도우미</h2>
+      <p class="lead">챗GPT·제미나이·클로드 같은 AI에게 과정안 초안을 받아 한 번에 채우는 기능이에요. <b>API 키나 결제 없이</b> 평소 쓰는 AI 채팅 화면만 있으면 돼요.</p>
+      <ol class="steps">
+        <li><b>앞 단계를 먼저 채우세요.</b> 교과·단원·평가·도구·성취기준을 입력해 둘수록 내 수업에 맞는 초안이 나와요.</li>
+        <li>화면 위쪽 <b>🤖 AI 초안 도우미</b>를 누르고 <b>📋 프롬프트 복사하기</b>를 눌러요.</li>
+        <li>AI 채팅 창에 <b>붙여넣기(Ctrl+V)</b> 하고 보내요.</li>
+        <li>AI의 답을 <b>전부 복사</b>해서 <b>② AI 응답 붙여넣기</b> 탭에 붙여넣고 <b>✨ 초안 적용하기</b>를 눌러요.</li>
+        <li>1단계부터 차례로 보며 <b>우리 반에 맞게 꼭 고쳐요.</b></li>
+      </ol>
+      <figure class="narrow"><img src="manual/img/13-ai-prompt.png" alt="프롬프트 복사"><figcaption>① 프롬프트 복사</figcaption></figure>
+      <ol class="marks">
+        <li><b>① 프롬프트 복사 탭</b></li>
+        <li><b>프롬프트</b> — 지금까지 입력한 내용과 양식 작성 원칙(백워드 설계, 도입 5분, 발문 2~3개 등)이 자동으로 들어 있어요. 고칠 필요는 없어요.</li>
+        <li><b>📋 프롬프트 복사하기</b> — 누르면 복사돼요. AI 채팅 창에 붙여넣으세요.</li>
+      </ol>
+      <figure class="narrow"><img src="manual/img/14-ai-paste.png" alt="AI 응답 붙여넣기"><figcaption>② AI 응답 붙여넣기</figcaption></figure>
+      <ol class="marks">
+        <li><b>② AI 응답 붙여넣기 탭</b></li>
+        <li><b>붙여넣기 칸</b> — AI 답을 앞뒤 설명까지 통째로 붙여넣어도 돼요. 중괄호 <code>{ … }</code> 부분을 알아서 찾아요.</li>
+        <li><b>주의 안내</b> — 적용하면 기존 입력이 덮어써져요. 단, <b>일시·학생 수·지도교사</b>처럼 AI가 비워 둔 칸과 3단계에서 고른 도구는 그대로 남아요.</li>
+        <li><b>✨ 초안 적용하기</b> — 누르면 확인 창이 뜨고, 확인하면 모든 칸이 채워져요.</li>
+      </ol>
+      <div class="warn"><b>⚠️ AI 초안은 '제안'일 뿐이에요</b>AI가 쓴 성취기준 코드·문장이 실제 교육과정과 다를 수 있어요. 성취기준, 평가 기준, 활동 내용을 반드시 확인하고 우리 반 학생과 수업 상황에 맞게 고쳐 쓰세요.</div>
+    </section>
+
+    <section id="result">
+      <h2>완성된 과정안</h2>
+      <p class="lead">📄 DOCX 다운로드로 받은 파일을 열면 이렇게 나와요. (예시안 기준)</p>
+      <figure class="narrow"><img src="manual/img/15-docx.png" alt="완성된 DOCX"><figcaption>DOCX 출력 결과 1쪽</figcaption></figure>
+      <div class="tip"><b>📂 한글(HWP)에서 여는 방법</b>한글을 실행 → <b>파일 → 불러오기</b> → 받은 .docx 파일 선택. 필요하면 <b>다른 이름으로 저장</b>에서 파일 형식을 <b>한글 문서(*.hwp)</b>로 골라 저장하세요.</div>
+    </section>
+
+    <section id="faq">
+      <h2>자주 묻는 질문</h2>
+      <details class="faq"><summary>작성하던 내용이 사라졌어요.</summary>
+        <p>내용은 <b>같은 컴퓨터의 같은 브라우저</b>에만 저장돼요. 다른 브라우저(크롬↔엣지)로 열었거나, 시크릿 창이었거나, 인터넷 사용 기록을 지웠다면 보이지 않아요. 중요한 과정안은 <b>💾 JSON 저장</b>으로 파일을 꼭 받아 두세요.</p></details>
+      <details class="faq"><summary>다른 컴퓨터(학교 ↔ 집)에서 이어서 쓰고 싶어요.</summary>
+        <p>쓰던 컴퓨터에서 <b>💾 JSON 저장</b> → 파일을 메일·USB 등으로 옮김 → 다른 컴퓨터에서 <b>📂 불러오기</b>로 그 파일을 열면 돼요.</p></details>
+      <details class="faq"><summary>"JSON을 찾지 못했어요" / "JSON 해석에 실패했어요"라고 나와요.</summary>
+        <p>AI 답이 중간에 끊겼을 가능성이 커요. AI에게 "계속" 또는 "JSON만 다시 전체 출력해 줘"라고 요청한 뒤, <b>처음 <code>{</code>부터 마지막 <code>}</code>까지</b> 모두 복사해 붙여넣으세요.</p></details>
+      <details class="faq"><summary>시간 합계가 빨간색이에요.</summary>
+        <p>각 행의 시간(분)을 더한 값이 1단계에서 고른 수업 시간(40분/80분)과 달라요. 행별 시간을 조정하거나 1단계에서 수업 시간을 바꾸세요.</p></details>
+      <details class="faq"><summary>전개를 활동1, 활동2 두 칸으로 나누고 싶어요.</summary>
+        <p>5단계 맨 아래 <b>＋ 행 추가</b>를 누르고, 학습 과정에 「전개」를 쓴 뒤 ↑ 버튼으로 정리 위로 올리세요. 각 행에 시간을 따로 적을 수 있어요.</p></details>
+      <details class="faq"><summary>양식의 칸 너비나 글꼴을 바꾸고 싶어요.</summary>
+        <p>DOCX 파일을 한글이나 워드에서 열어 자유롭게 고치면 돼요. 이 프로그램은 내용 작성과 기본 양식 배치를 도와주는 역할이에요.</p></details>
+    </section>
+
+    <p class="foot">프로그램 제작자: 구운초등학교 박선택 · <a href="index.html">과정안 만들러 가기 →</a></p>
+  </main>
+</div>
+
+<div class="lightbox" id="lightbox"><img alt=""></div>
+
+<script>
+// 그림 크게 보기
+const lb = document.getElementById('lightbox');
+document.querySelectorAll('figure img').forEach(img=>img.addEventListener('click',()=>{
+  lb.querySelector('img').src = img.src; lb.querySelector('img').alt = img.alt; lb.classList.add('open');
+}));
+lb.addEventListener('click',()=>lb.classList.remove('open'));
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') lb.classList.remove('open'); });
+
+// 목차: 지금 보는 부분 표시
+const links = [...document.querySelectorAll('#toc a')];
+const targets = links.map(a=>document.querySelector(a.getAttribute('href')));
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(!en.isIntersecting) return;
+    links.forEach(a=>a.classList.toggle('on', a.getAttribute('href')==='#'+en.target.id));
+  });
+},{rootMargin:'-80px 0px -70% 0px'});
+targets.forEach(t=>t && io.observe(t));
+</script>
+</body>
+</html>
