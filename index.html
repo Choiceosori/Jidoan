@@ -182,9 +182,9 @@ button.tile:hover{border-color:var(--brand)}
     <h3>작성 흐름</h3>
     <ol>
       <li><b>기본 정보</b> — 일시·대상·단원·차시·장소를 입력합니다.</li>
+      <li><b>평가</b> — 백워드 설계에 따라 평가 문항과 상·중·하 기준, 방법, 시기를 먼저 정합니다.</li>
       <li><b>목표·의도·질문</b> — 학습목표, 성취기준, 수업자 의도, 핵심 질문을 씁니다.</li>
-      <li><b>교수·학습 활동</b> — 도입·전개·정리별 활동과 자료(□)·유의점(※)·평가(☑)를 씁니다. AI·디지털 도구와 활용 유의사항은 이 칸에 녹여 적어요.</li>
-      <li><b>평가</b> — 평가 문항과 상·중·하 기준, 방법, 시기를 씁니다.</li>
+      <li><b>교수·학습 활동</b> — 정한 평가에 도달하도록 도입·전개·정리별 활동과 자료(□)·유의점(※)·평가(☑)를 씁니다. AI·디지털 도구와 활용 유의사항은 이 칸에 녹여 적어요.</li>
       <li><b>미리보기·출력</b> — 작성 점검 후 DOCX로 내려받습니다.</li>
     </ol>
     <p class="hint" style="margin-top:10px">🤖 <b>AI 초안 도우미</b>: 프롬프트를 복사해 챗GPT·Gemini·클로드 등에 붙여넣고, 받은 JSON을 다시 붙여넣으면 초안이 채워집니다. API 키가 필요 없어요. AI 초안은 반드시 검토·수정 후 사용하세요.</p>
@@ -214,7 +214,7 @@ button.tile:hover{border-color:var(--brand)}
     </div>
     <div class="modal-body">
       <div id="ai-tab-prompt">
-        <p class="hint" style="margin-top:0">🔑 API 키·서버가 필요 없어요. 아래 프롬프트를 복사해 평소 쓰는 <b>챗GPT, Gemini, 클로드</b> 등에 붙여넣고, AI의 응답을 ② 탭에 붙여넣으세요. (1·2단계에서 교과·단원·성취기준을 먼저 입력할수록 더 알맞은 초안이 나와요)</p>
+        <p class="hint" style="margin-top:0">🔑 API 키·서버가 필요 없어요. 아래 프롬프트를 복사해 평소 쓰는 <b>챗GPT, Gemini, 클로드</b> 등에 붙여넣고, AI의 응답을 ② 탭에 붙여넣으세요. (1~3단계에서 교과·단원·평가·성취기준을 먼저 입력할수록 더 알맞은 초안이 나와요)</p>
         <textarea id="ai-prompt-text" rows="16" readonly></textarea>
         <div style="margin-top:10px"><button class="btn primary" data-action="copy-prompt">📋 프롬프트 복사하기</button></div>
       </div>
@@ -389,7 +389,8 @@ function renderDraftSlot(){
 }
 
 /* ═══════════════════ 위저드 렌더 ═══════════════════ */
-const STEP_NAMES = ['기본 정보','목표·의도·질문','교수·학습 활동','평가','미리보기·출력'];
+/* 백워드 설계 순서: 기본 정보 → 평가 → 목표·의도·질문 → 교수·학습 활동 */
+const STEP_NAMES = ['기본 정보','평가','목표·의도·질문','교수·학습 활동','미리보기·출력'];
 function renderStepNav(){
   $('#stepnav').innerHTML = STEP_NAMES.map((n,i)=>{
     const s=i+1;
@@ -414,9 +415,9 @@ function datalist(id, items){ return `<datalist id="${id}">${items.map(x=>`<opti
 function renderStep(){
   renderStepNav();
   const el = $('#step-content');
-  el.innerHTML = [stepBasic, stepGoal, stepFlow, stepAssess, stepExport][step-1]();
+  el.innerHTML = [stepBasic, stepAssess, stepGoal, stepFlow, stepExport][step-1]();
   window.scrollTo({top:0});
-  if(step===3) updateTimeSum();
+  if(step===4) updateTimeSum();
   if(step===5) renderChecklist();
 }
 
@@ -559,6 +560,7 @@ function stepAssess(){
   <div class="step-card">
     <h3>평가</h3>
     <p class="desc">과정안 아래쪽 평가 표(평가 문항 · 구분 · 평가 기준 · 방법 · 시기)에 들어갑니다.</p>
+    <div class="tip-box"><b>백워드 설계</b> — 학생이 도달해야 할 모습(평가)을 먼저 정하고, 다음 단계에서 목표·질문을, 그다음 그 평가에 도달하도록 교수·학습 활동을 설계해요.</div>
     ${field('평가 문항', ta('assess.item', a.item, '예: 우리 지역의 국가유산을 조사하여 그 역사적 의미를 설명하였는가?', 2), '「~하였는가?」 형태로 씁니다.')}
     ${field('상', ta('assess.high', a.high, '예: 다양한 자료를 비교하여 … 구체적으로 설명하였다.', 2))}
     ${field('중', ta('assess.mid', a.mid, '예: … 설명하였다.', 2))}
@@ -915,6 +917,7 @@ function buildPrompt(){
 ${given}
 
 [작성 원칙]
+0. 백워드 설계로 작성합니다. 먼저 평가(assess)에서 학생이 도달할 수행 수준을 정하고, 학습목표·핵심 질문을 그 평가와 일치시키며, 교수·학습 활동은 그 평가에 도달하도록 설계합니다. 전개의 ☑ 평가는 assess와 같은 내용이어야 합니다.
 1. 학생 탐구·질문 중심으로 설계하고, AI·디지털 도구는 '답을 주는 도구'가 아니라 탐구를 돕는 도구로 활용합니다.
    양식에 AI 도구·유의사항 칸이 따로 없으므로, 도구는 활동 속에 자연스럽게 녹이고 flow의 "notes"(자료·유의점·평가 칸)에 적습니다.
 2. goal(학습목표): 1~2문장, "~할 수 있다."로 끝나는 관찰 가능한 진술.
