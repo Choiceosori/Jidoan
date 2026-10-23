@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>교수·학습 과정안 만들기</title>
+<style>
+:root{
+  --bg:#f4f6fa; --card:#ffffff; --ink:#1f2937; --muted:#6b7280; --line:#e2e8f0;
+  --brand:#2f5bd3; --brand-weak:#e8eefc; --accent:#0f8a6a; --warn:#b45309;
+  --radius:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",sans-serif;font-size:15px;line-height:1.55}
+button{font:inherit;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+textarea{resize:vertical;line-height:1.6}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--brand-weak);border-color:var(--brand)}
+label{display:block;font-weight:600;font-size:14px;margin-bottom:5px}
+.opt{font-weight:400;color:var(--muted);font-size:13px}
+.hint{color:var(--muted);font-size:13px;margin-top:4px}
+
+/* 상단 바 */
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:10px 18px;background:#fff;border-bottom:1px solid var(--line)}
+.topbar .logo{font-weight:800;font-size:16px;margin-right:auto;cursor:pointer}
+.topbar .doc-name{color:var(--muted);font-size:14px}
+.autosave{color:var(--accent);font-size:12px}
+
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 14px;font-weight:600;color:var(--ink)}
+.btn:hover{border-color:var(--brand)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.accent{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.sm{padding:4px 9px;font-size:13px;font-weight:500}
+.btn:disabled{opacity:.4;cursor:default}
+
+/* 홈 */
+.home{max-width:920px;margin:0 auto;padding:36px 18px 60px}
+.home h1{font-size:26px;margin:0 0 6px}
+.home .lead{color:var(--muted);margin:0 0 26px}
+.home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;text-align:left}
+.tile h3{margin:0 0 6px;font-size:17px}
+.tile p{margin:0 0 14px;color:var(--muted);font-size:14px}
+button.tile:hover{border-color:var(--brand)}
+.draft-card{display:flex;align-items:center;gap:12px;background:#fff8e6;border:1px solid #f5d27a;border-radius:var(--radius);padding:14px 16px;margin-bottom:18px;flex-wrap:wrap}
+.draft-card .info{flex:1;min-width:180px}
+.draft-card h3{margin:0;font-size:15px}
+.draft-card p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.guide{margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px}
+.guide h3{margin:0 0 8px;font-size:16px}
+.guide ol{margin:0;padding-left:20px}
+.guide li{margin:4px 0}
+.foot{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}
+
+/* 위저드 */
+.wizard{display:grid;grid-template-columns:minmax(0,1fr) 560px;gap:18px;max-width:1500px;margin:0 auto;padding:16px 18px 60px}
+.stepnav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.stepnav button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font-size:14px;display:flex;align-items:center;gap:6px}
+.stepnav button .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--line);font-size:12px;font-weight:700}
+.stepnav button.on{border-color:var(--brand);color:var(--brand);font-weight:700}
+.stepnav button.on .n{background:var(--brand);color:#fff}
+.stepnav button.done .n{background:var(--accent);color:#fff}
+.step-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-bottom:14px}
+.step-card h3{margin:0 0 4px;font-size:18px}
+.step-card .desc{margin:0 0 16px;color:var(--muted);font-size:14px}
+.field{margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 14px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 14px}
+.row-card{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px;background:#fbfcfe}
+.row-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.row-title{font-weight:700}
+.row-tools{margin-left:auto;display:flex;gap:4px}
+.tip-box{background:var(--brand-weak);border-radius:10px;padding:12px 14px;font-size:13.5px;margin-bottom:14px}
+.tip-box ul{margin:4px 0 0;padding-left:18px}
+.tbar{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:5px}
+.tbar button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:2px 8px;font-size:13px}
+.tbar button:hover{border-color:var(--brand);color:var(--brand)}
+.tbar .sep{width:1px;background:var(--line);margin:0 3px}
+.time-sum{display:inline-block;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--brand-weak);color:var(--brand)}
+.time-sum.bad{background:#fdecec;color:#b42318}
+.wiz-footer{display:flex;justify-content:space-between;margin-top:6px}
+.check-list{list-style:none;padding:0;margin:6px 0 0}
+.check-list li{padding:5px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.check-list li.ok::before{content:"✅ "}
+.check-list li.no::before{content:"⚠️ "}
+.check-list li.no{color:var(--warn)}
+.export-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+
+/* 미리보기 */
+.preview-col{position:sticky;top:64px;align-self:start;height:calc(100vh - 80px);display:flex;flex-direction:column}
+.preview-col .ph{font-weight:700;font-size:14px;margin-bottom:6px;color:var(--muted)}
+.preview-scroll{flex:1;overflow:auto;background:#d9dee7;border-radius:var(--radius);padding:12px}
+.pages-scale{transform-origin:top left}
+.page{width:210mm;min-height:297mm;background:#fff;padding:15mm 20mm;box-shadow:0 2px 10px rgba(0,0,0,.18);color:#000;font-family:"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",sans-serif;font-size:10pt;line-height:1.45}
+.page .title{border:1.5px solid #000;text-align:center;font-weight:800;font-size:15pt;padding:2.5mm 0;margin:0 0 4mm}
+.page table.f{width:170mm;border-collapse:collapse;table-layout:fixed}
+.page table.f td{border:0.75pt solid #000;padding:1.2mm 1.6mm;vertical-align:top;word-break:keep-all;overflow-wrap:anywhere}
+.page td.l{background:#ececec;text-align:center;vertical-align:middle;font-weight:700}
+.page td.c{text-align:center;vertical-align:middle}
+.page .ln0{font-weight:700}
+.page .ln1{padding-left:3mm}
+.page .ln2{padding-left:6mm}
+.page .badge{display:inline-block;border:0.75pt solid #000;border-radius:1mm;padding:0 1.2mm;font-size:8.5pt;font-weight:400;margin-left:1mm;line-height:1.3}
+.page u{text-underline-offset:2px}
+.page .pbox{border:0.75pt solid #000;border-radius:1.5mm;padding:1.5mm 2.5mm;margin:1mm 0 1mm 3mm}
+.page .empty{color:#9aa1ad}
+.page .gap{height:4mm}
+
+/* 모달 */
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal.open{display:flex}
+.modal-box{background:#fff;border-radius:14px;max-width:760px;width:100%;max-height:92vh;display:flex;flex-direction:column}
+.modal-head{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.modal-head h3{margin:0;font-size:17px;margin-right:auto}
+.m-tabs{display:flex;gap:6px;padding:12px 18px 0}
+.m-tabs button{border:1px solid var(--line);background:#fff;border-radius:8px 8px 0 0;padding:7px 14px;font-weight:600}
+.m-tabs button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.modal-body{padding:14px 18px 18px;overflow:auto}
+.modal-body textarea{font-family:ui-monospace,Consolas,monospace;font-size:13px}
+.notice{background:#fff8e6;border:1px solid #f5d27a;border-radius:8px;padding:10px 12px;font-size:13.5px;margin:10px 0}
+
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:90vw}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (max-width:1100px){
+  .wizard{grid-template-columns:minmax(0,1fr)}
+  .preview-col{display:none}
+  .wizard[data-step="5"] .preview-col{display:flex;position:static;height:auto}
+  .wizard[data-step="5"] .preview-scroll{max-height:none}
+}
+@media (max-width:640px){
+  .grid2,.grid3,.grid4{grid-template-columns:minmax(0,1fr)}
+  .topbar .doc-name{display:none}
+}
+@media print{
+  @page{size:A4 portrait;margin:0}
+  body{background:#fff}
+  .topbar,#view-home,.form-col,.preview-col .ph,#toast,.modal{display:none!important}
+  .wizard{display:block;padding:0;margin:0}
+  .preview-col{display:block!important;position:static;height:auto}
+  .preview-scroll{background:none;padding:0;overflow:visible}
+  .pages-scale{transform:none!important;width:auto!important;height:auto!important}
+  .page{box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="logo" data-action="go-home">📝 교수·학습 과정안 만들기</span>
+  <span class="doc-name" id="doc-name"></span>
+  <span class="autosave" id="autosave-label"></span>
+  <button class="btn sm" data-action="open-ai" id="btn-ai" style="display:none">🤖 AI 초안 도우미</button>
+  <button class="btn sm" data-action="download-json" id="btn-json" style="display:none">💾 JSON 저장</button>
+  <button class="btn sm" data-action="import-json">📂 불러오기</button>
+</header>
+
+<!-- ═════════ 홈 ═════════ -->
+<main id="view-home" class="home">
+  <h1>질문이 넘치는 교수·학습 과정안</h1>
+  <p class="lead">내용만 입력하면 학교 지도안 양식(A4 세로) 그대로 완성되고, DOCX로 내려받아 한글·워드에서 바로 편집할 수 있어요.</p>
+  <div id="draft-slot"></div>
+  <div class="home-grid">
+    <button class="tile" data-action="new-doc">
+      <h3>📝 새 과정안 만들기</h3>
+      <p>빈 양식에서 시작해 단계별로 입력합니다.</p>
+      <span class="btn primary">새로 만들기 →</span>
+    </button>
+    <button class="tile" data-action="load-example">
+      <h3>🌱 예시안으로 시작하기</h3>
+      <p>4학년 사회 · 스마트렌즈·패들렛으로 우리 지역 국가유산 조사하기</p>
+      <span class="btn">예시 불러오기 →</span>
+    </button>
+    <button class="tile" data-action="import-json">
+      <h3>📂 JSON 파일 불러오기</h3>
+      <p>[JSON 저장]으로 내려받은 과정안을 이어서 편집합니다.</p>
+      <span class="btn">파일 선택 →</span>
+    </button>
+  </div>
+  <div class="guide">
+    <h3>작성 흐름</h3>
+    <ol>
+      <li><b>기본 정보</b> — 일시·대상·단원·차시·장소를 입력합니다.</li>
+      <li><b>목표·의도·질문</b> — 학습목표, 성취기준, 수업자 의도, 핵심 질문을 씁니다.</li>
+      <li><b>교수·학습 활동</b> — 도입·전개·정리별 활동과 자료(□)·유의점(※)·평가(☑)를 씁니다. AI·디지털 도구와 활용 유의사항은 이 칸에 녹여 적어요.</li>
+      <li><b>평가</b> — 평가 문항과 상·중·하 기준, 방법, 시기를 씁니다.</li>
+      <li><b>미리보기·출력</b> — 작성 점검 후 DOCX로 내려받습니다.</li>
+    </ol>
+    <p class="hint" style="margin-top:10px">🤖 <b>AI 초안 도우미</b>: 프롬프트를 복사해 챗GPT·Gemini·클로드 등에 붙여넣고, 받은 JSON을 다시 붙여넣으면 초안이 채워집니다. API 키가 필요 없어요. AI 초안은 반드시 검토·수정 후 사용하세요.</p>
+  </div>
+  <p class="foot">모든 내용은 이 브라우저에만 저장됩니다 · 원본 아이디어: 「AI·디지털 수업 설계안 실습」(포항양덕초 김정준)</p>
+</main>
+
+<!-- ═════════ 위저드 ═════════ -->
+<div id="view-wizard" class="wizard" style="display:none">
+  <section class="form-col">
+    <nav class="stepnav" id="stepnav"></nav>
+    <div id="step-content"></div>
+  </section>
+  <aside class="preview-col">
+    <div class="ph">실시간 미리보기 (A4 세로)</div>
+    <div class="preview-scroll" id="preview-scroll"><div class="pages-scale" id="pages-scale"></div></div>
+  </aside>
+</div>
+
+<!-- ═════════ AI 모달 ═════════ -->
+<div class="modal" id="ai-modal">
+  <div class="modal-box">
+    <div class="modal-head"><h3>🤖 AI 초안 도우미</h3><button class="btn sm" data-action="close-ai">✕ 닫기</button></div>
+    <div class="m-tabs">
+      <button class="on" data-action="ai-tab" data-tab="prompt">① 프롬프트 복사</button>
+      <button data-action="ai-tab" data-tab="paste">② AI 응답 붙여넣기</button>
+    </div>
+    <div class="modal-body">
+      <div id="ai-tab-prompt">
+        <p class="hint" style="margin-top:0">🔑 API 키·서버가 필요 없어요. 아래 프롬프트를 복사해 평소 쓰는 <b>챗GPT, Gemini, 클로드</b> 등에 붙여넣고, AI의 응답을 ② 탭에 붙여넣으세요. (1·2단계에서 교과·단원·성취기준을 먼저 입력할수록 더 알맞은 초안이 나와요)</p>
+        <textarea id="ai-prompt-text" rows="16" readonly></textarea>
+        <div style="margin-top:10px"><button class="btn primary" data-action="copy-prompt">📋 프롬프트 복사하기</button></div>
+      </div>
+      <div id="ai-tab-paste" style="display:none">
+        <textarea id="ai-paste-text" rows="16" placeholder="AI가 보낸 응답 전체를 여기에 붙여넣으세요. { … } JSON 부분을 자동으로 찾아요."></textarea>
+        <div class="notice">⚠️ AI 초안은 '제안'일 뿐입니다. 적용 후 우리 반 학생과 수업 상황에 맞게 반드시 검토·수정하세요. (일시·대상 인원·지도교사는 비어 있으면 기존 입력을 유지하고, 나머지 내용은 덮어써집니다)</div>
+        <button class="btn primary" data-action="apply-ai">✨ 초안 적용하기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="file-input" accept=".json,application/json" style="display:none">
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ═══════════════════ 상수 · 데이터 ═══════════════════ */
+const LS_KEY = 'lesson-plan-portrait-v1';
+const SUBJECTS = ['국어','사회','도덕','수학','과학','실과','체육','음악','미술','영어','바른 생활','슬기로운 생활','즐거운 생활','창의적 체험활동'];
+const PHASES = ['도입','전개','정리'];
+const WHEN_PRESETS = ['도입','전개','전개(활동1)','전개(활동2)','정리'];
+const FORMS = ['전체','모둠','짝','개인','모둠+전체'];
+const METHOD_PRESETS = ['관찰 평가','자기 평가','동료 평가','구술 평가','서술형 평가','작품 평가','포트폴리오','체크리스트'];
+const TIMING_PRESETS = ['수업 중','수업 후','활동1 중','활동2 중'];
+const NOTE_PRESETS = [
+  '※ AI 검색·생성 결과를 그대로 활용하지 않고 신뢰성을 확인하도록 지도한다.',
+  '※ 자료의 출처를 확인하고 저작권을 지켜 활용하도록 한다.',
+  '※ 개인정보가 담긴 사진·자료는 입력하거나 올리지 않도록 한다.',
+  '※ 온라인 공유 공간에는 비난보다 질문과 보완 제안 중심으로 댓글을 쓰도록 한다.',
+  '※ AI가 제안한 내용을 그대로 옮기지 않고 검토·수정하여 사용하도록 한다.'
+];
+const TOOL_PRESETS = ['패들렛','캔바','생성형 AI(챗봇)','스마트렌즈/구글 렌즈','구글 문서','띵커벨','멘티미터','AI 코스웨어','전자칠판','태블릿'];
+
+/* 성취기준 데이터: 다음 단계에서 window.STANDARDS 로 연결 예정 */
+const STD_DATA = Array.isArray(window.STANDARDS) ? window.STANDARDS : [];
+
+const EXAMPLE = {
+  meta:{ subject:'사회', date:'4월 15일(화) 3교시', grade:'4학년 2반', boys:'12', girls:'11', teacher:'○○○',
+         unit:'2. 우리 지역의 국가유산', period:'5/12', place:'4학년 2반 교실', duration:40 },
+  goal:'디지털 도구를 활용하여 우리 지역의 국가유산을 조사하고, 그 역사적 의미를 설명할 수 있다.',
+  standards:'[4사06-01] 지역의 박물관, 기념관, 유적지 등을 체험하고 지역의 역사를 이해한다.',
+  intent:'본 차시는 학생들이 우리 지역의 국가유산을 직접 찾아 조사하는 경험을 통해 지역의 역사에 관심을 갖도록 하는 데 초점을 둔다. 학생들은 지역의 현재 모습에는 익숙하지만 그 속에 담긴 역사에 대한 이해가 부족하고, 디지털 자료를 탐색할 때 정보의 신뢰성을 판단해 본 경험이 적다. 이에 교과서 자료를 우리 지역 국가유산 사진 자료로 재구성하고, 스마트렌즈로 찾은 정보를 공식 누리집과 비교하여 신뢰성을 확인하는 활동을 핵심으로 한다. 핵심 질문을 통해 "이 정보를 믿을 수 있는 까닭"을 스스로 묻도록 하여 자료를 비판적으로 활용하는 힘을 기른다.',
+  questions:[
+    { q:'우리 지역의 국가유산은 우리에게 어떤 이야기를 들려줄까?', when:'도입' },
+    { q:'내가 찾은 정보가 믿을 만하다는 것을 어떻게 확인할 수 있을까?', when:'전개(활동1)' }
+  ],
+  problem:'❶우리 지역의 __국가유산__을 조사하고 ❷그 __역사적 의미__를 설명해 봅시다.',
+  flow:[
+    { phase:'도입', min:5,
+      acts:'▣ 우리 지역의 옛 모습 떠올리기\n▪ 같은 장소의 옛 사진과 오늘날 사진 비교하기\n- 달라진 점과 그대로 남아 있는 것 찾기\n- 핵심 질문: 우리 지역의 국가유산은 우리에게 어떤 이야기를 들려줄까?\n▣ 학습 문제 확인하기\n▣ 학습 활동 알아보기\n【활동1】 스마트렌즈로 국가유산 찾아보기\n【활동2】 국가유산 소개 카드 만들기',
+      notes:'□ 우리 지역 옛 사진·오늘날 사진(PPT)\n※ 동기유발 사진을 【활동1】 조사 자료로 다시 활용한다.' },
+    { phase:'전개', min:30,
+      acts:'▣【활동1】 스마트렌즈로 국가유산 찾아보기 [모둠]\n▪ 사진 속 국가유산 검색하기\n- 모둠별 국가유산 사진을 스마트렌즈로 검색하기\n- 이름, 만들어진 시기, 관련 인물과 이야기 정리하기\n▪ 정보의 신뢰성 확인하기\n- 발문: 내가 찾은 정보가 믿을 만하다는 것을 어떻게 확인할 수 있을까?\n- 국가유산청 누리집과 검색 결과 비교하기\n▣【활동2】 국가유산 소개 카드 만들기 [모둠+전체]\n▪ 조사 내용을 소개 카드로 정리하기\n- 발문: 이 국가유산이 오늘날까지 남아 있는 까닭은 무엇일까?\n- 패들렛에 소개 카드 올리기\n▪ 다른 모둠의 카드 읽고 댓글 달기\n- 발문: 우리 가족과 함께 가 보고 싶은 곳은 어디인가요?',
+      notes:'□ 태블릿, 스마트렌즈(또는 구글 렌즈)\n※ AI 이미지 검색 결과를 그대로 믿지 않고 공식 누리집과 비교하여 신뢰성을 확인하도록 지도한다.\n※ 사람 얼굴 등 개인정보가 담긴 사진은 촬영하거나 올리지 않도록 한다.\n□ 패들렛(모둠별 게시판)\n※ 카드에 자료 출처를 반드시 적도록 한다.\n☑ 국가유산의 역사적 의미 설명(관찰 평가)' },
+    { phase:'정리', min:5,
+      acts:'▣ 학습 문제 다시 알아보기\n▪ 우리 지역 국가유산의 역사적 의미 말하기\n▣ 알게 된 점 나누기\n▪ 알게 된 점이나 더 궁금한 점 한 가지 말하기\n▪ 친구와 함께 공부하며 도움을 받은 점 이야기하기',
+      notes:'※ 패들렛 댓글은 비난이 아닌 질문·보완 제안 중심으로 쓰도록 한다.' }
+  ],
+  assess:{ item:'우리 지역의 국가유산을 조사하여 그 역사적 의미를 설명하였는가?',
+    high:'다양한 디지털 자료를 비교하여 국가유산의 특징을 조사하고, 그 역사적 의미를 근거를 들어 구체적으로 설명하였다.',
+    mid:'디지털 자료를 활용하여 국가유산의 특징을 조사하고, 그 역사적 의미를 설명하였다.',
+    low:'도움을 받아 국가유산의 특징을 조사하고, 그 역사적 의미를 간단하게 설명하였다.',
+    method:'관찰 평가', when:'수업 중' }
+};
+
+/* ═══════════════════ 유틸 ═══════════════════ */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('show'),2600); }
+function debounce(fn,ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; }
+function downloadBlob(filename, blob){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },400);
+}
+function sanitizeName(s){ return String(s||'').replace(/[\\/:*?"<>|]/g,'').replace(/\s+/g,'_').slice(0,40) || '과정안'; }
+function deepCopy(o){ return JSON.parse(JSON.stringify(o)); }
+const lines = text => String(text||'').split('\n').map(s=>s.trim()).filter(Boolean);
+
+/* ═══════════════════ 문서 모델 ═══════════════════ */
+function blankDoc(){
+  return {
+    meta:{ subject:'', date:'', grade:'', boys:'', girls:'', teacher:'', unit:'', period:'', place:'', duration:40 },
+    goal:'', standards:'', intent:'',
+    questions:[{q:'', when:'전개'}],
+    problem:'',
+    flow:[
+      {phase:'도입', min:5, acts:'▣ \n▣ 학습 문제 확인하기\n▣ 학습 활동 알아보기\n【활동1】 \n【활동2】 ', notes:''},
+      {phase:'전개', min:30, acts:'▣【활동1】  [모둠]\n▪ \n- \n▣【활동2】  [전체]\n▪ \n- ', notes:''},
+      {phase:'정리', min:5, acts:'▣ 학습 문제 다시 알아보기\n▣ 알게 된 점 나누기\n▪ \n▪ 친구와 함께 공부하며 도움을 받은 점 이야기하기', notes:''}
+    ],
+    assess:{ item:'', high:'', mid:'', low:'', method:'관찰 평가', when:'수업 중' }
+  };
+}
+
+function normalizeDoc(raw){
+  if(!raw || typeof raw!=='object') throw new Error('형식이 올바르지 않습니다.');
+  const d = blankDoc();
+  const S = v => v==null ? '' : (Array.isArray(v) ? v.map(x=>String(x).trim()).filter(Boolean).join('\n') : String(v));
+  const m = raw.meta || {};
+  for(const k of Object.keys(d.meta)) if(k!=='duration') d.meta[k] = S(m[k]);
+  d.meta.grade = d.meta.grade || S(m.target);
+  d.meta.duration = parseInt(m.duration,10) || 40;
+  d.goal = S(raw.goal ?? raw.objective);
+  d.standards = S(raw.standards);
+  d.intent = S(raw.intent);
+  if(Array.isArray(raw.questions) && raw.questions.length){
+    d.questions = raw.questions.map(q => typeof q==='string' ? {q, when:''} : {q:S(q.q ?? q.question), when:S(q.when ?? q.stage)});
+  }else if(typeof raw.questions==='string' && raw.questions.trim()){
+    d.questions = lines(raw.questions).map(q=>({q, when:''}));
+  }
+  d.problem = S(raw.problem);
+  if(Array.isArray(raw.flow) && raw.flow.length){
+    d.flow = raw.flow.map(f=>({ phase:S(f.phase ?? f.stage), min:parseInt(f.min ?? f.minutes,10)||0, acts:S(f.acts), notes:S(f.notes) }));
+  }
+  const a = raw.assess || (Array.isArray(raw.assessment) ? raw.assessment[0] : null);
+  if(a) d.assess = { item:S(a.item), high:S(a.high), mid:S(a.mid), low:S(a.low), method:S(a.method), when:S(a.when) };
+  return d;
+}
+
+/* ═══════════════════ 상태 · 저장 ═══════════════════ */
+let doc = null;
+let step = 1;
+
+function saveLocal(){
+  if(!doc) return;
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify({doc, step, savedAt:new Date().toISOString()}));
+    $('#autosave-label').textContent = '자동 저장됨 ✓';
+  }catch(e){ /* 저장 공간 부족 등은 무시 */ }
+}
+const saveLocalDebounced = debounce(saveLocal, 400);
+function loadLocal(){
+  try{ const raw = localStorage.getItem(LS_KEY); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
+}
+
+/* ═══════════════════ 라우팅 ═══════════════════ */
+function showHome(){
+  saveLocal();
+  $('#view-home').style.display='block';
+  $('#view-wizard').style.display='none';
+  $('#btn-ai').style.display='none'; $('#btn-json').style.display='none';
+  $('#doc-name').textContent=''; $('#autosave-label').textContent='';
+  renderDraftSlot();
+}
+function showWizard(){
+  $('#view-home').style.display='none';
+  $('#view-wizard').style.display='grid';
+  $('#btn-ai').style.display=''; $('#btn-json').style.display='';
+  renderStep(); updatePreview();
+}
+function openDoc(newDoc, startStep){ doc = newDoc; step = startStep||1; saveLocal(); showWizard(); }
+
+function renderDraftSlot(){
+  const slot = $('#draft-slot');
+  const saved = loadLocal();
+  if(saved && saved.doc){
+    const m = saved.doc.meta||{};
+    const name = [m.subject && m.subject+'과', m.unit, m.period && m.period+'차시'].filter(Boolean).join(' · ') || '제목 없음';
+    const when = saved.savedAt ? new Date(saved.savedAt).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+    slot.innerHTML = `
+      <div class="draft-card">
+        <span style="font-size:26px">✍️</span>
+        <div class="info"><h3>작성 중인 과정안이 있어요</h3><p>${esc(name)}${when?' · '+esc(when)+' 저장':''}</p></div>
+        <button class="btn primary" data-action="continue-draft">이어서 작성 →</button>
+        <button class="btn" data-action="delete-draft">삭제</button>
+      </div>`;
+  }else slot.innerHTML='';
+}
+
+/* ═══════════════════ 위저드 렌더 ═══════════════════ */
+const STEP_NAMES = ['기본 정보','목표·의도·질문','교수·학습 활동','평가','미리보기·출력'];
+function renderStepNav(){
+  $('#stepnav').innerHTML = STEP_NAMES.map((n,i)=>{
+    const s=i+1;
+    return `<button data-action="goto-step" data-step="${s}" class="${s===step?'on':(s<step?'done':'')}"><span class="n">${s<step?'✓':s}</span>${n}</button>`;
+  }).join('');
+  $('#view-wizard').dataset.step = step;
+  const m = doc.meta;
+  $('#doc-name').textContent = [m.subject&&m.subject+'과', m.unit].filter(Boolean).join(' · ') || '새 과정안';
+}
+
+function field(label, inner, hint){
+  return `<div class="field"><label>${label}</label>${inner}${hint?`<div class="hint">${hint}</div>`:''}</div>`;
+}
+function ta(path, val, ph, rows){
+  return `<textarea data-bind="${path}" rows="${rows||3}" placeholder="${esc(ph||'')}">${esc(val)}</textarea>`;
+}
+function inp(path, val, ph, extra){
+  return `<input data-bind="${path}" value="${esc(val)}" placeholder="${esc(ph||'')}" ${extra||''}>`;
+}
+function datalist(id, items){ return `<datalist id="${id}">${items.map(x=>`<option value="${esc(x)}">`).join('')}</datalist>`; }
+
+function renderStep(){
+  renderStepNav();
+  const el = $('#step-content');
+  el.innerHTML = [stepBasic, stepGoal, stepFlow, stepAssess, stepExport][step-1]();
+  window.scrollTo({top:0});
+  if(step===3) updateTimeSum();
+  if(step===5) renderChecklist();
+}
+
+/* ── 1단계: 기본 정보 ── */
+function stepBasic(){
+  const m = doc.meta;
+  return `
+  <div class="step-card">
+    <h3>기본 정보</h3>
+    <p class="desc">과정안 맨 위 표(일시·대상·지도교사·단원·차시·장소)에 들어갑니다.</p>
+    <div class="grid3">
+      ${field('교과', `<select data-bind="meta.subject"><option value="">선택하세요</option>${SUBJECTS.map(s=>`<option ${m.subject===s?'selected':''}>${s}</option>`).join('')}</select>`, '제목 「질문이 넘치는 (  )과」에 들어가요.')}
+      ${field('일시', inp('meta.date', m.date, '예: 4월 15일(화) 3교시'))}
+      ${field('지도교사', inp('meta.teacher', m.teacher, '예: ○○○'))}
+    </div>
+    <div class="grid3">
+      ${field('대상 (학년 반)', inp('meta.grade', m.grade, '예: 4학년 2반'))}
+      ${field('남학생 수', inp('meta.boys', m.boys, '예: 12', 'inputmode="numeric"'))}
+      ${field('여학생 수', inp('meta.girls', m.girls, '예: 11', 'inputmode="numeric"'), '합계(계)는 자동 계산돼요.')}
+    </div>
+    <div class="grid3">
+      ${field('단원', inp('meta.unit', m.unit, '예: 2. 우리 지역의 국가유산'))}
+      ${field('차시', inp('meta.period', m.period, '예: 5/12'))}
+      ${field('장소', inp('meta.place', m.place, '예: 4학년 2반 교실'))}
+    </div>
+    <div class="grid3">
+      ${field('수업 시간', `<select data-bind="meta.duration" data-num="1">${[40,80].map(n=>`<option value="${n}" ${+m.duration===n?'selected':''}>${n}분${n===80?' (2차시 블록)':' (1차시)'}</option>`).join('')}</select>`, '양식에는 나오지 않고, 시간 배분 점검과 AI 프롬프트에 쓰여요.')}
+    </div>
+  </div>
+  ${wizFooter()}`;
+}
+
+/* ── 2단계: 목표·의도·질문 ── */
+function stepGoal(){
+  const qs = doc.questions.map((q,i)=>`
+    <div class="row-card">
+      <div class="row-head"><span class="row-title">핵심 질문 ${i+1}</span>
+        <div class="row-tools"><button class="btn sm" data-action="del-q" data-idx="${i}">🗑</button></div></div>
+      <div class="grid3" style="grid-template-columns:minmax(0,3fr) minmax(0,1fr)">
+        ${field('질문', inp(`questions.${i}.q`, q.q, '예: 내가 찾은 정보가 믿을 만하다는 것을 어떻게 확인할 수 있을까?'))}
+        ${field('제시 단계', inp(`questions.${i}.when`, q.when, '예: 전개(활동1)', 'list="dl-when"'))}
+      </div>
+    </div>`).join('');
+  return `
+  <div class="step-card">
+    <h3>학습목표 · 성취기준</h3>
+    <p class="desc">양식의 「학습목표」, 「성취기준」 칸에 들어갑니다.</p>
+    ${field('학습목표', ta('goal', doc.goal, '예: 디지털 도구를 활용하여 우리 지역의 국가유산을 조사하고, 그 역사적 의미를 설명할 수 있다.', 2))}
+    ${field('성취기준', ta('standards', doc.standards, '[4사06-01] 지역의 박물관, 기념관, 유적지 등을 체험하고 지역의 역사를 이해한다.', 2), '여러 개면 줄바꿈으로 구분하세요.')}
+  </div>
+  <div class="step-card">
+    <h3>수업자 의도</h3>
+    <div class="tip-box">→ 수업의 흐름(도입-전개-정리)을 설명하는 것이 <b>아닙니다</b>.<br>
+    → 본시 성취기준, 교과 역량, 학습 목표, 실태 분석을 통해 목표에 도달하기 위해 <b>학습 방법, 자료, 내용(재구성), 발문 중 어떤 것을 핵심적으로 할 것인지 초점화</b>하여 진술합니다.</div>
+    ${field('수업자 의도', ta('intent', doc.intent, '예: 본 차시는 … 에 초점을 둔다. 학생들은 … 이에 … 을 핵심으로 한다.', 6))}
+  </div>
+  <div class="step-card">
+    <h3>핵심 질문</h3>
+    <p class="desc">→ 1~2가지, 어느 단계에서 할지 명시합니다.</p>
+    ${qs}
+    ${doc.questions.length<2?'<button class="btn" data-action="add-q">＋ 핵심 질문 추가</button>':''}
+    ${datalist('dl-when', WHEN_PRESETS)}
+  </div>
+  ${wizFooter()}`;
+}
+
+/* ── 3단계: 교수·학습 활동 ── */
+function actsToolbar(i){
+  const b = (ins,label,title)=>`<button type="button" data-action="ins" data-target="flow.${i}.acts" data-ins="${esc(ins)}" title="${esc(title||'')}">${esc(label)}</button>`;
+  return `<div class="tbar">
+    ${b('▣ ','▣ 큰 활동','내용 요소로 쓰는 큰 활동')}${b('▪ ','▪ 세부 활동','~떠올리기, ~알아보기')}${b('- ','- 하위 내용')}
+    <span class="sep"></span>${b('▣【활동1】 ','【활동1】')}${b('▣【활동2】 ','【활동2】')}${b('- 발문: ','발문')}
+    <span class="sep"></span>${FORMS.map(f=>b(` [${f}]`,`[${f}]`,'학습 형태 표시')).join('')}
+  </div>`;
+}
+function notesToolbar(i){
+  const b = (ins,label)=>`<button type="button" data-action="ins" data-target="flow.${i}.notes" data-ins="${esc(ins)}">${esc(label)}</button>`;
+  return `<div class="tbar">${b('□ ','□ 자료')}${b('※ ','※ 유의점')}${b('☑ ','☑ 평가')}</div>`;
+}
+function stepFlow(){
+  const rows = doc.flow.map((f,i)=>`
+    <div class="row-card">
+      <div class="row-head">
+        <span class="row-title">행 ${i+1}</span>
+        <div class="row-tools">
+          <button class="btn sm" data-action="move-flow" data-idx="${i}" data-dir="-1">↑</button>
+          <button class="btn sm" data-action="move-flow" data-idx="${i}" data-dir="1">↓</button>
+          <button class="btn sm" data-action="del-flow" data-idx="${i}">🗑</button>
+        </div>
+      </div>
+      <div class="grid4">
+        ${field('학습 과정', inp(`flow.${i}.phase`, f.phase, '도입/전개/정리', 'list="dl-phase"'))}
+        ${field('시간(분)', `<input type="number" min="0" step="1" data-bind="flow.${i}.min" value="${f.min||''}" placeholder="5">`)}
+      </div>
+      <div class="field"><label>교수·학습 활동 <span class="opt">— 버튼으로 기호를 넣을 수 있어요 · __낱말__ 은 밑줄</span></label>
+        ${actsToolbar(i)}
+        ${ta(`flow.${i}.acts`, f.acts, '▣ 우리 지역의 옛 모습 떠올리기\n▪ 옛 사진과 오늘날 사진 비교하기\n- 달라진 점 찾기', 9)}
+      </div>
+      <div class="field"><label>자료(□), 유의점(※), 평가(☑) <span class="opt">— AI·디지털 도구는 □, 활용 유의사항은 ※로 적어요</span></label>
+        ${notesToolbar(i)}
+        ${ta(`flow.${i}.notes`, f.notes, '□ 패들렛\n※ AI 검색 결과의 신뢰성을 확인하도록 지도한다.\n☑ 관찰 평가', 4)}
+      </div>
+    </div>`).join('');
+  return `
+  <div class="step-card">
+    <h3>학습 문제</h3>
+    <p class="desc">「학습 문제 확인하기」 줄 아래에 상자로 들어갑니다. ❶❷로 학습 순서를 표시하고, 중심 낱말은 <b>__낱말__</b>처럼 감싸면 밑줄이 그어져요.</p>
+    <div class="tbar">${['❶','❷','❸'].map(c=>`<button type="button" data-action="ins" data-target="problem" data-ins="${c}">${c}</button>`).join('')}
+      <button type="button" data-action="underline" data-target="problem">__밑줄__ (선택 영역)</button></div>
+    ${inp('problem', doc.problem, '예: ❶인물의 __성격__을 짐작하며 ❷이야기를 읽어 봅시다.')}
+  </div>
+  <div class="step-card">
+    <h3>교수·학습 활동</h3>
+    <div class="tip-box"><b>양식 작성 안내</b>
+      <ul>
+        <li>▣ 형식 요소보다는 <b>내용 요소</b>로 제시 · ▪ ~떠올리기, ~알아보기 · - 하위 내용</li>
+        <li><b>도입</b>: 최대 5분, 본시 내용을 동기유발화, 전개에서 동기유발 자료 재활용, 학습 문제 중심 낱말에 밑줄, 학습 순서는 번호로 명료화</li>
+        <li><b>전개</b>: 활동 최대 2개, 집중 활동, 핵심 발문 2~3개, 짝·모둠·전체 활동, 삶과 연결하기, 학습자 중심 용어, 과정중심평가 명시(☑)</li>
+        <li><b>정리</b>: 학습 문제 다시 알아보기, 알게 된 점(느낀 점·어려움·즐거움·궁금함 중 선택, 차시 예고 ✕), 친구와 함께 공부하며 도움받은 것, 생활과 연결하기</li>
+      </ul></div>
+    <div style="margin-bottom:12px"><span class="time-sum" id="time-sum"></span></div>
+    ${rows}
+    <button class="btn" data-action="add-flow">＋ 행 추가</button>
+    ${datalist('dl-phase', PHASES)}
+  </div>
+  <div class="step-card">
+    <h3>자주 쓰는 유의점(※) 문구</h3>
+    <p class="desc">누르면 <b>전개</b> 행(없으면 마지막 행)의 자료·유의점 칸 끝에 추가돼요.</p>
+    <div class="tbar">${NOTE_PRESETS.map((p,i)=>`<button type="button" data-action="add-note" data-idx="${i}">＋ ${esc(p.slice(2))}</button>`).join('')}</div>
+    <p class="desc" style="margin:10px 0 6px">자주 쓰는 AI·디지털 도구(□)</p>
+    <div class="tbar">${TOOL_PRESETS.map(t=>`<button type="button" data-action="add-tool" data-t="${esc(t)}">＋ ${esc(t)}</button>`).join('')}</div>
+  </div>
+  ${wizFooter()}`;
+}
+
+/* ── 4단계: 평가 ── */
+function stepAssess(){
+  const a = doc.assess;
+  return `
+  <div class="step-card">
+    <h3>평가</h3>
+    <p class="desc">과정안 아래쪽 평가 표(평가 문항 · 구분 · 평가 기준 · 방법 · 시기)에 들어갑니다.</p>
+    ${field('평가 문항', ta('assess.item', a.item, '예: 우리 지역의 국가유산을 조사하여 그 역사적 의미를 설명하였는가?', 2), '「~하였는가?」 형태로 씁니다.')}
+    ${field('상', ta('assess.high', a.high, '예: 다양한 자료를 비교하여 … 구체적으로 설명하였다.', 2))}
+    ${field('중', ta('assess.mid', a.mid, '예: … 설명하였다.', 2))}
+    ${field('하', ta('assess.low', a.low, '예: 도움을 받아 … 간단하게 설명하였다.', 2))}
+    <div class="grid2">
+      ${field('방법', inp('assess.method', a.method, '예: 관찰 평가', 'list="dl-method"'))}
+      ${field('시기', inp('assess.when', a.when, '예: 수업 중', 'list="dl-timing"'))}
+    </div>
+    ${datalist('dl-method', METHOD_PRESETS)}${datalist('dl-timing', TIMING_PRESETS)}
+  </div>
+  ${wizFooter()}`;
+}
+
+/* ── 5단계: 미리보기·출력 ── */
+function stepExport(){
+  return `
+  <div class="step-card">
+    <h3>미리보기 · 출력</h3>
+    <p class="desc">작성 점검을 확인하고 DOCX로 내려받으세요. 한글(HWP)과 MS워드에서 모두 열어 편집할 수 있어요.</p>
+    <div class="export-bar">
+      <button class="btn accent" data-action="download-docx">📄 DOCX 다운로드</button>
+      <button class="btn" data-action="download-json">💾 JSON 저장 (재편집용)</button>
+      <button class="btn" data-action="print-doc">🖨️ 인쇄</button>
+    </div>
+    <label>작성 점검</label>
+    <ul class="check-list" id="check-list"></ul>
+  </div>
+  ${wizFooter(true)}`;
+}
+
+function wizFooter(last){
+  return `<div class="wiz-footer">
+    <button class="btn" data-action="prev-step" ${step===1?'disabled':''}>← 이전</button>
+    ${last?'<span></span>':`<button class="btn primary" data-action="next-step">다음 →</button>`}
+  </div>`;
+}
+
+function totalMin(){ return doc.flow.reduce((s,f)=>s+(parseInt(f.min,10)||0),0); }
+function updateTimeSum(){
+  const el = $('#time-sum'); if(!el) return;
+  const t = totalMin(), d = +doc.meta.duration||40;
+  el.textContent = `총 ${t}분 / ${d}분`;
+  el.classList.toggle('bad', t!==d);
+}
+
+/* ═══════════════════ 줄·인라인 해석 (미리보기·DOCX 공용) ═══════════════════ */
+const FORM_RE = /\[((?:전체|모둠|짝|개인|개별)(?:\s*[+·]\s*(?:전체|모둠|짝|개인|개별))*)\]/;
+/* 한 줄을 조각으로 나눔: {t, u(밑줄), badge(학습 형태), b(굵게)} */
+function segments(line){
+  const out = [];
+  const re = new RegExp(`__(.+?)__|${FORM_RE.source}|(【[^】]*】)`, 'g');
+  let last = 0, mm;
+  while((mm = re.exec(line))){
+    if(mm.index>last) out.push({t:line.slice(last, mm.index)});
+    if(mm[1]!=null) out.push({t:mm[1], u:true});
+    else if(mm[2]!=null) out.push({t:mm[2].replace(/\s*([+·])\s*/g,'$1'), badge:true});
+    else out.push({t:mm[3], b:true});
+    last = re.lastIndex;
+  }
+  if(last<line.length) out.push({t:line.slice(last)});
+  return out;
+}
+/* 활동 줄의 들여쓰기 수준: ▣ 0(굵게) / ▪ 1 / - 2 / 그 외 1 */
+function lineLevel(l){
+  if(/^▣/.test(l)) return 0;
+  if(/^[-–]/.test(l)) return 2;
+  return 1;
+}
+/* 학습 문제 상자를 넣을 위치: 도입 행의 '▣ … 학습 문제' 줄 바로 다음 */
+function problemSlot(){
+  if(!doc.problem.trim()) return null;
+  let fi = doc.flow.findIndex(f=>/도입/.test(f.phase));
+  if(fi<0) fi = 0;
+  if(!doc.flow[fi]) return null;
+  const ls = lines(doc.flow[fi].acts);
+  const li = ls.findIndex(l=>/^▣/.test(l) && /학습\s*문제/.test(l));
+  return { fi, li: li<0 ? ls.length-1 : li };
+}
+function gradeText(){
+  const m = doc.meta;
+  const b = parseInt(m.boys,10), g = parseInt(m.girls,10);
+  const sum = (isNaN(b)?0:b) + (isNaN(g)?0:g);
+  return `${m.grade || '  학년  반'}  남: ${m.boys||'  '}, 여: ${m.girls||'  '} (계: ${sum||'  '}명)`;
+}
+function titleText(){
+  const s = doc.meta.subject;
+  return `질문이 넘치는 ( ${s || '      '} )과 교수·학습 과정안`;
+}
+function questionLines(){
+  return doc.questions.filter(q=>q.q.trim()).map((q,i)=>`${'①②③'[i]||'·'} ${q.q.trim()}${q.when.trim()?` (${q.when.trim()})`:''}`);
+}
+
+/* ═══════════════════ 미리보기 렌더 ═══════════════════ */
+function segHTML(line){
+  return segments(line).map(s=>{
+    if(s.badge) return `<span class="badge">${esc(s.t)}</span>`;
+    if(s.u) return `<u>${esc(s.t)}</u>`;
+    if(s.b) return `<b>${esc(s.t)}</b>`;
+    return esc(s.t);
+  }).join('');
+}
+const V = (s) => s ? esc(s).replace(/\n/g,'<br>') : '<span class="empty">－</span>';
+function actsPreview(f, fi, slot){
+  const ls = lines(f.acts);
+  const html = ls.map((l,li)=>{
+    let h = `<div class="ln${lineLevel(l)}">${segHTML(l)}</div>`;
+    if(slot && slot.fi===fi && slot.li===li) h += `<div class="pbox">${segHTML(doc.problem)}</div>`;
+    return h;
+  }).join('');
+  if(!ls.length && slot && slot.fi===fi) return `<div class="pbox">${segHTML(doc.problem)}</div>`;
+  return html || '<span class="empty">－</span>';
+}
+function renderPageHTML(){
+  const m = doc.meta;
+  const slot = problemSlot();
+  const L = t => `<td class="l">${t}</td>`;
+  const flowRows = doc.flow.map((f,i)=>`<tr>
+      <td class="c" style="font-weight:700">${V(f.phase)}</td>
+      <td colspan="5">${actsPreview(f,i,slot)}</td>
+      <td colspan="2" class="c">${f.min?esc(f.min):''}</td>
+      <td colspan="2">${lines(f.notes).map(l=>`<div>${segHTML(l)}</div>`).join('') || '<span class="empty">－</span>'}</td>
+    </tr>`).join('');
+  const a = doc.assess;
+  const ql = questionLines();
+  return `<div class="page">
+    <div class="title">${esc(titleText())}</div>
+    <table class="f">
+      <colgroup>${[17,33,10,29,18,21,6,4,12,20].map(w=>`<col style="width:${w}mm">`).join('')}</colgroup>
+      <tr>${L('일시')}<td class="c">${V(m.date)}</td>${L('대상')}<td colspan="4" class="c">${esc(gradeText())}</td><td colspan="2" class="l">지도교사</td><td class="c">${V(m.teacher)}</td></tr>
+      <tr>${L('단원')}<td colspan="3">${V(m.unit)}</td>${L('차시')}<td colspan="2" class="c">${V(m.period)}</td><td colspan="2" class="l">장 소</td><td class="c">${V(m.place)}</td></tr>
+      <tr>${L('학습목표')}<td colspan="9">${V(doc.goal)}</td></tr>
+      <tr>${L('성취기준')}<td colspan="9">${V(doc.standards)}</td></tr>
+      <tr>${L('수업자<br>의도')}<td colspan="9">${V(doc.intent)}</td></tr>
+      <tr>${L('핵심 질문')}<td colspan="9">${ql.length?ql.map(esc).join('<br>'):'<span class="empty">－</span>'}</td></tr>
+      <tr>${L('학습<br>과정')}<td colspan="5" class="l">교 수 · 학 습 &nbsp;활 동</td><td colspan="2" class="l">시간<br>(분)</td><td colspan="2" class="l">자료(□), 유의점(※), 평가(☑)</td></tr>
+      ${flowRows}
+    </table>
+    <div class="gap"></div>
+    <table class="f">
+      <colgroup>${[39,8,103,10,10].map(w=>`<col style="width:${w}mm">`).join('')}</colgroup>
+      <tr>${['평가 문항','구분','평가 기준','방법','시기'].map(L).join('')}</tr>
+      <tr><td rowspan="3" class="c">${V(a.item)}</td><td class="c">상</td><td>${V(a.high)}</td><td rowspan="3" class="c">${V(a.method)}</td><td rowspan="3" class="c">${V(a.when)}</td></tr>
+      <tr><td class="c">중</td><td>${V(a.mid)}</td></tr>
+      <tr><td class="c">하</td><td>${V(a.low)}</td></tr>
+    </table>
+  </div>`;
+}
+function updatePreview(){
+  if(!doc) return;
+  $('#pages-scale').innerHTML = renderPageHTML();
+  fitPreview();
+}
+const updatePreviewDebounced = debounce(updatePreview, 250);
+function fitPreview(){
+  const box = $('#preview-scroll'), sc = $('#pages-scale'), page = sc.firstElementChild;
+  if(!page || !box.clientWidth) return;
+  const avail = box.clientWidth - 24;
+  const w = page.offsetWidth, h = page.offsetHeight;
+  const s = Math.min(1, avail / w);
+  sc.style.transform = `scale(${s})`;
+  sc.style.width = w+'px';
+  sc.style.height = (h*s)+'px';
+}
+window.addEventListener('resize', debounce(fitPreview, 100));
+
+/* ═══════════════════ 작성 점검 ═══════════════════ */
+function renderChecklist(){
+  const items = [];
+  const add = (ok, msg) => items.push(`<li class="${ok?'ok':'no'}">${msg}</li>`);
+  const m = doc.meta;
+  add(m.subject && m.unit && m.period, '교과·단원·차시를 입력했어요.');
+  add(doc.goal.trim(), '학습목표를 입력했어요.');
+  add(doc.standards.trim(), '성취기준을 입력했어요.');
+  add(doc.intent.trim() && !/도입.*전개.*정리/.test(doc.intent), '수업자 의도를 흐름 설명이 아닌 초점 중심으로 썼어요.');
+  const qs = doc.questions.filter(q=>q.q.trim());
+  add(qs.length>=1 && qs.length<=2 && qs.every(q=>q.when.trim()), '핵심 질문 1~2개에 제시 단계를 모두 적었어요.');
+  add(doc.problem.trim(), '학습 문제를 입력했어요.');
+  const t = totalMin(), d = +m.duration||40;
+  add(t===d, `시간 배분 합계가 ${d}분이에요. (현재 ${t}분)`);
+  const intro = doc.flow.find(f=>/도입/.test(f.phase));
+  add(intro && (parseInt(intro.min,10)||0)<=5*(d/40), `도입은 최대 ${5*(d/40)}분이에요.`);
+  const dev = doc.flow.filter(f=>/전개/.test(f.phase)).map(f=>f.acts).join('\n');
+  const actCount = new Set((dev.match(/【활동\s*\d+】/g)||[]).map(s=>s.replace(/\s/g,''))).size;
+  add(actCount>=1 && actCount<=2, `전개 활동은 최대 2개예요. (현재 ${actCount}개)`);
+  const allActs = doc.flow.map(f=>f.acts).join('\n');
+  const askCount = (allActs.match(/발문/g)||[]).length;
+  add(askCount>=2 && askCount<=3, `핵심 발문 2~3개를 표시했어요. (현재 ${askCount}개)`);
+  add(FORM_RE.test(dev), '전개 활동에 학습 형태([전체]·[모둠]·[짝]·[개인])를 표시했어요.');
+  const notes = doc.flow.map(f=>f.notes).join('\n');
+  add(/☑/.test(notes), '자료·유의점 칸에 과정중심평가(☑)를 명시했어요.');
+  add(/※/.test(notes), '자료·유의점 칸에 유의점(※)을 적었어요. (AI 활용 유의사항 포함)');
+  const outro = doc.flow.find(f=>/정리/.test(f.phase));
+  add(!outro || !/차시\s*예고/.test(outro.acts), '정리 단계에 차시 예고를 넣지 않았어요.');
+  const a = doc.assess;
+  add(a.item.trim() && a.high.trim() && a.mid.trim() && a.low.trim(), '평가 문항과 상·중·하 기준을 모두 입력했어요.');
+  $('#check-list').innerHTML = items.join('');
+}
+
+/* ═══════════════════ 입력 바인딩 ═══════════════════ */
+function getPath(path){
+  return path.split('.').reduce((o,k)=>o[isNaN(k)?k:+k], doc);
+}
+function setPath(path, value){
+  const keys = path.split('.');
+  let obj = doc;
+  for(let i=0;i<keys.length-1;i++) obj = obj[isNaN(keys[i])?keys[i]:+keys[i]];
+  const last = keys[keys.length-1];
+  obj[isNaN(last)?last:+last] = value;
+}
+function onBindInput(e){
+  const bind = e.target.dataset && e.target.dataset.bind;
+  if(!bind) return;
+  let val = e.target.value;
+  if(e.target.type==='number' || e.target.dataset.num) val = parseInt(val,10)||0;
+  setPath(bind, val);
+  if(bind.startsWith('meta.')) renderStepNav();
+  if(/^flow\.\d+\.min$/.test(bind) || bind==='meta.duration') updateTimeSum();
+  saveLocalDebounced(); updatePreviewDebounced();
+}
+document.addEventListener('input', onBindInput);
+document.addEventListener('change', e=>{ if(e.target.tagName==='SELECT') onBindInput(e); });
+
+/* 커서 위치에 기호 넣기 (줄머리 기호는 새 줄에서 시작) */
+function insertAtCursor(el, str){
+  const s = el.selectionStart ?? el.value.length, e = el.selectionEnd ?? s;
+  let ins = str;
+  const before = el.value.slice(0,s);
+  if(el.tagName==='TEXTAREA' && /^[▣▪\-□※☑]/.test(str) && before && !before.endsWith('\n')) ins = '\n'+str;
+  el.value = before + ins + el.value.slice(e);
+  const pos = s + ins.length;
+  el.focus(); el.setSelectionRange(pos,pos);
+  el.dispatchEvent(new Event('input',{bubbles:true}));
+}
+function appendLine(path, line){
+  const cur = getPath(path) || '';
+  setPath(path, cur.trim() ? cur.replace(/\s*$/,'')+'\n'+line : line);
+}
+function notesTargetIndex(){
+  const i = doc.flow.findIndex(f=>/전개/.test(f.phase));
+  return i>=0 ? i : doc.flow.length-1;
+}
+
+/* ═══════════════════ 동작(클릭) ═══════════════════ */
+function moveItem(arr,i,dir){ const j=i+dir; if(j<0||j>=arr.length) return; [arr[i],arr[j]]=[arr[j],arr[i]]; }
+function refresh(){ renderStep(); saveLocal(); updatePreview(); }
+
+document.addEventListener('click', e=>{
+  const btn = e.target.closest('[data-action]');
+  if(!btn) return;
+  const act = btn.dataset.action;
+  const idx = btn.dataset.idx!=null ? +btn.dataset.idx : null;
+  const dir = btn.dataset.dir!=null ? +btn.dataset.dir : null;
+
+  switch(act){
+    case 'new-doc': openDoc(blankDoc()); break;
+    case 'load-example': openDoc(normalizeDoc(deepCopy(EXAMPLE))); toast('예시안을 불러왔어요. 내 수업에 맞게 수정해 보세요!'); break;
+    case 'continue-draft': { const s=loadLocal(); if(s&&s.doc){ try{ doc=normalizeDoc(s.doc); step=s.step||1; showWizard(); }catch(err){ toast('저장본을 불러오지 못했어요.'); } } break; }
+    case 'delete-draft': if(confirm('작성 중인 과정안을 삭제할까요?')){ try{ localStorage.removeItem(LS_KEY); }catch(err){} renderDraftSlot(); } break;
+    case 'go-home': if(doc) showHome(); break;
+    case 'goto-step': step=+btn.dataset.step; renderStep(); updatePreview(); break;
+    case 'next-step': if(step<5){ step++; renderStep(); updatePreview(); saveLocal(); } break;
+    case 'prev-step': if(step>1){ step--; renderStep(); updatePreview(); saveLocal(); } break;
+
+    case 'add-q': if(doc.questions.length<2){ doc.questions.push({q:'', when:''}); refresh(); } break;
+    case 'del-q': doc.questions.splice(idx,1); if(!doc.questions.length) doc.questions.push({q:'',when:''}); refresh(); break;
+
+    case 'add-flow': doc.flow.push({phase:'', min:0, acts:'', notes:''}); refresh(); break;
+    case 'del-flow': if(doc.flow.length<=1){ toast('최소 1개 행이 필요해요.'); break; } doc.flow.splice(idx,1); refresh(); break;
+    case 'move-flow': moveItem(doc.flow,idx,dir); refresh(); break;
+    case 'ins': { const el = document.querySelector(`[data-bind="${btn.dataset.target}"]`); if(el) insertAtCursor(el, btn.dataset.ins); break; }
+    case 'underline': {
+      const el = document.querySelector(`[data-bind="${btn.dataset.target}"]`); if(!el) break;
+      const s=el.selectionStart, en=el.selectionEnd;
+      if(s===en){ toast('밑줄을 그을 낱말을 먼저 드래그해서 선택하세요.'); break; }
+      el.value = el.value.slice(0,s)+'__'+el.value.slice(s,en)+'__'+el.value.slice(en);
+      el.dispatchEvent(new Event('input',{bubbles:true}));
+      break;
+    }
+    case 'add-note': {
+      const i = notesTargetIndex(); const p = NOTE_PRESETS[idx];
+      if((doc.flow[i].notes||'').includes(p)){ toast('이미 들어 있는 문구예요.'); break; }
+      appendLine(`flow.${i}.notes`, p); refresh(); toast(`「${doc.flow[i].phase||'행 '+(i+1)}」 행에 추가했어요.`); break;
+    }
+    case 'add-tool': {
+      const i = notesTargetIndex();
+      appendLine(`flow.${i}.notes`, '□ '+btn.dataset.t); refresh(); toast(`「${doc.flow[i].phase||'행 '+(i+1)}」 행에 추가했어요.`); break;
+    }
+
+    case 'print-doc': window.print(); break;
+    case 'download-json': {
+      if(!doc) break;
+      const name = `과정안_${sanitizeName(doc.meta.subject)}_${sanitizeName(doc.meta.unit)}.json`;
+      downloadBlob(name, new Blob([JSON.stringify(doc,null,2)],{type:'application/json;charset=utf-8'}));
+      toast('JSON 파일로 저장했어요. [불러오기]로 다시 열 수 있어요.');
+      break;
+    }
+    case 'download-docx': downloadDocx(); break;
+    case 'import-json': $('#file-input').click(); break;
+
+    case 'open-ai': openAIModal(); break;
+    case 'close-ai': $('#ai-modal').classList.remove('open'); break;
+    case 'ai-tab': {
+      $$('#ai-modal .m-tabs button').forEach(b=>b.classList.toggle('on', b===btn));
+      $('#ai-tab-prompt').style.display = btn.dataset.tab==='prompt'?'block':'none';
+      $('#ai-tab-paste').style.display = btn.dataset.tab==='paste'?'block':'none';
+      break;
+    }
+    case 'copy-prompt': {
+      const t=$('#ai-prompt-text');
+      const fallback = ()=>{ t.select(); document.execCommand('copy'); toast('프롬프트를 복사했어요!'); };
+      if(navigator.clipboard) navigator.clipboard.writeText(t.value).then(()=>toast('프롬프트를 복사했어요! 챗봇에 붙여넣으세요.')).catch(fallback);
+      else fallback();
+      break;
+    }
+    case 'apply-ai': applyAIResponse(); break;
+  }
+});
+
+$('#file-input').addEventListener('change', e=>{
+  const f = e.target.files[0]; e.target.value='';
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{ openDoc(normalizeDoc(JSON.parse(reader.result))); toast('JSON 파일을 불러왔어요.'); }
+    catch(err){ toast('불러오기 실패: 올바른 과정안 JSON 파일이 아니에요.'); }
+  };
+  reader.readAsText(f,'utf-8');
+});
+
+/* ═══════════════════ AI 초안 도우미 ═══════════════════ */
+function buildPrompt(){
+  const m = doc.meta;
+  const d = +m.duration || 40;
+  const qs = doc.questions.filter(q=>q.q.trim()).map(q=>q.q.trim()+(q.when?` (${q.when})`:'')).join(' / ');
+  const given = [
+    m.subject && `- 교과: ${m.subject}`,
+    m.grade && `- 대상: ${m.grade}`,
+    m.unit && `- 단원: ${m.unit}`,
+    m.period && `- 차시: ${m.period}`,
+    `- 수업 시간: ${d}분${d===80?' (2차시 블록)':''}`,
+    doc.goal && `- 학습목표: ${doc.goal}`,
+    doc.standards && `- 성취기준: ${doc.standards.replace(/\n/g,' / ')}`,
+    doc.intent && `- 수업자 의도 메모: ${doc.intent}`,
+    qs && `- 핵심 질문: ${qs}`,
+    doc.problem && `- 학습 문제: ${doc.problem}`
+  ].filter(Boolean).join('\n');
+  const intro = 5*(d/40);
+
+  return `당신은 대한민국 2022 개정 교육과정에 정통한 초등 수업 설계 전문가입니다.
+아래 정보를 바탕으로 「질문이 넘치는 (${m.subject||'  '})과 교수·학습 과정안」(A4 세로 1차시 지도안) 초안을 JSON으로 작성해 주세요.
+이 수업은 AI·디지털 도구를 활용하는 수업입니다.
+
+[입력 정보]
+${given}
+
+[작성 원칙]
+1. 학생 탐구·질문 중심으로 설계하고, AI·디지털 도구는 '답을 주는 도구'가 아니라 탐구를 돕는 도구로 활용합니다.
+   양식에 AI 도구·유의사항 칸이 따로 없으므로, 도구는 활동 속에 자연스럽게 녹이고 flow의 "notes"(자료·유의점·평가 칸)에 적습니다.
+2. goal(학습목표): 1~2문장, "~할 수 있다."로 끝나는 관찰 가능한 진술.
+3. intent(수업자 의도): 수업의 흐름(도입-전개-정리)을 설명하지 마세요. 성취기준, 교과 역량, 학습 목표, 학생 실태를 근거로 목표에 도달하기 위해 학습 방법, 자료, 내용(재구성), 발문 중 무엇을 핵심으로 했는지 초점화하여 4~6문장으로 씁니다.
+4. questions(핵심 질문): 1~2개. 각각 제시 단계를 "when"에 명시합니다(예: "도입", "전개(활동1)").
+5. problem(학습 문제): 학습 순서를 ❶❷ 번호로 표시하고, 중심 낱말은 __낱말__ 처럼 밑줄 표시합니다. 예: "❶인물의 __성격__을 짐작하며 ❷이야기를 읽어 봅시다."
+6. flow(교수·학습 활동): "도입", "전개", "정리" 3개 행. min의 합계는 반드시 ${d}분.
+   - "acts"는 여러 줄 문자열입니다. ▣로 시작하는 줄은 큰 활동(형식 요소가 아닌 내용 요소로, 예: "▣ 우리 지역의 옛 모습 떠올리기"), ▪로 시작하는 줄은 세부 활동(~떠올리기, ~알아보기 등 학습자 중심 용어), -로 시작하는 줄은 하위 내용입니다.
+   - 도입(최대 ${intro}분): 본시 내용으로 동기유발하고, 그 자료를 전개에서 다시 활용합니다. 반드시 "▣ 학습 문제 확인하기", "▣ 학습 활동 알아보기" 줄과 그 아래 "【활동1】 …", "【활동2】 …" 줄을 넣습니다. (학습 문제 상자는 앱이 "학습 문제 확인하기" 줄 아래에 자동으로 넣으므로 acts에 학습 문제 문장을 다시 쓰지 마세요.)
+   - 전개: 활동은 최대 2개이며 "▣【활동1】 활동명 [모둠]"처럼 줄 끝에 학습 형태를 [전체]·[모둠]·[짝]·[개인]·[모둠+전체] 중에서 표시합니다. 핵심 발문 2~3개를 "- 발문: …" 형태로 넣고, 삶과 연결하는 활동을 포함합니다.
+   - 정리: 학습 문제 다시 알아보기, 알게 된 점(느낀 점·어려움·즐거움·궁금함 중 선택), 친구와 함께 공부하며 도움받은 점(경청·인성), 생활과 연결하기. 차시 예고는 쓰지 않습니다.
+   - "notes"는 한 줄에 하나씩, □로 시작하면 자료(AI·디지털 도구 포함), ※로 시작하면 유의점, ☑로 시작하면 평가입니다. AI 활용 유의점(결과의 신뢰성 확인, 저작권·출처, 개인정보 보호, 디지털 시민성, AI 결과의 비판적 수용)을 해당 활동 행의 ※로 2~4개 넣고, 과정중심평가를 전개 행에 ☑로 명시합니다.
+7. assess(평가): 평가 문항 1개를 "~하였는가?" 형태로, 상·중·하 평가 기준은 "~하였다." 형태의 수행 수준 진술로 씁니다. 하 수준은 "도움을 받아 ~ 간단하게 ~하였다"처럼 씁니다. method(방법)와 when(시기)을 적습니다.
+
+[출력 형식 — 아래 스키마의 JSON만 출력하세요. 설명 문장 금지]
+{
+  "meta": {"subject":"교과","grade":"○학년 ○반","unit":"단원명","period":"○/○","place":"장소"},
+  "goal": "학습목표",
+  "standards": "[코드] 성취기준 전문 (여러 개면 \\n으로 구분)",
+  "intent": "수업자 의도",
+  "questions": [{"q":"핵심 질문","when":"제시 단계"}],
+  "problem": "❶… ❷…",
+  "flow": [
+    {"phase":"도입","min":${intro},"acts":"▣ …\\n▪ …\\n- …","notes":"□ …\\n※ …"},
+    {"phase":"전개","min":${d-intro*2},"acts":"…","notes":"…\\n☑ …"},
+    {"phase":"정리","min":${intro},"acts":"…","notes":"…"}
+  ],
+  "assess": {"item":"~하였는가?","high":"상 기준","mid":"중 기준","low":"하 기준","method":"관찰 평가","when":"수업 중"}
+}`;
+}
+
+function openAIModal(){
+  if(!doc) return;
+  $('#ai-prompt-text').value = buildPrompt();
+  $('#ai-modal').classList.add('open');
+}
+function applyAIResponse(){
+  const raw = $('#ai-paste-text').value;
+  const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
+  if(s===-1 || e===-1 || e<=s){ toast('JSON을 찾지 못했어요. { }로 감싸진 응답 전체를 붙여넣어 주세요.'); return; }
+  let newDoc;
+  try{ newDoc = normalizeDoc(JSON.parse(raw.slice(s,e+1))); }
+  catch(err){ toast('JSON 해석에 실패했어요. 응답이 잘렸는지 확인하고 다시 시도해 주세요.'); return; }
+  if(!confirm('AI 초안을 적용하면 현재 입력 내용을 덮어씁니다. 적용할까요?\n(적용 후 반드시 검토·수정하세요)')) return;
+  // AI가 비워 둔 기본 정보(일시·인원·지도교사 등)는 기존 입력을 유지
+  for(const k of Object.keys(newDoc.meta)) if(!newDoc.meta[k] && doc.meta[k]) newDoc.meta[k] = doc.meta[k];
+  newDoc.meta.duration = doc.meta.duration;
+  doc = newDoc; step = 1;
+  $('#ai-modal').classList.remove('open');
+  $('#ai-paste-text').value='';
+  saveLocal(); showWizard();
+  toast('AI 초안을 적용했어요. 1단계부터 검토하며 우리 수업에 맞게 수정하세요!');
+}
+
+/* ═══════════════════ DOCX 생성 (외부 라이브러리 없이 OOXML + ZIP 직접 작성) ═══════════════════ */
+const xe = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const TW = mm => Math.round(mm*56.6929);   // mm → twip
+const FONT = '맑은 고딕';
+
+function wRun(t, o={}){
+  let pr = '';
+  if(o.b) pr += '<w:b/><w:bCs/>';
+  if(o.u) pr += '<w:u w:val="single"/>';
+  if(o.badge) pr += '<w:bdr w:val="single" w:sz="4" w:space="0" w:color="000000"/>';
+  if(o.sz) pr += `<w:sz w:val="${o.sz}"/><w:szCs w:val="${o.sz}"/>`;
+  return `<w:r>${pr?`<w:rPr>${pr}</w:rPr>`:''}<w:t xml:space="preserve">${xe(t)}</w:t></w:r>`;
+}
+function wSegRuns(line, base={}){
+  return segments(line).map(s=>wRun(s.badge?` ${s.t} `:s.t, {...base, u:s.u||base.u, b:s.b||base.b, badge:s.badge, sz:s.badge?16:base.sz})).join('');
+}
+function wP(runs, o={}){
+  let pr = '<w:spacing w:before="0" w:after="0" w:line="264" w:lineRule="auto"/>';
+  if(o.ind) pr += `<w:ind w:left="${o.ind}"/>`;
+  if(o.jc) pr += `<w:jc w:val="${o.jc}"/>`;
+  if(o.box) pr = '<w:pBdr><w:top w:val="single" w:sz="12" w:space="4" w:color="000000"/><w:left w:val="single" w:sz="12" w:space="4" w:color="000000"/><w:bottom w:val="single" w:sz="12" w:space="4" w:color="000000"/><w:right w:val="single" w:sz="12" w:space="4" w:color="000000"/></w:pBdr>' + pr;
+  return `<w:p><w:pPr>${pr}</w:pPr>${runs||''}</w:p>`;
+}
+const wText = (text, o={}) => {
+  const ls = String(text||'').split('\n');
+  return ls.map(l=>wP(wRun(l,o.r||{}), o)).join('');
+};
+/* 셀: content=문단 XML, w=twip, span, vm('restart'|'cont'), lbl(음영), vc(세로 가운데) */
+function wTc(content, o={}){
+  let pr = `<w:tcW w:w="${o.w}" w:type="dxa"/>`;
+  if(o.span>1) pr += `<w:gridSpan w:val="${o.span}"/>`;
+  if(o.vm==='restart') pr += '<w:vMerge w:val="restart"/>';
+  if(o.vm==='cont') pr += '<w:vMerge/>';
+  if(o.lbl) pr += '<w:shd w:val="clear" w:color="auto" w:fill="ECECEC"/>';
+  if(o.vc || o.lbl) pr += '<w:vAlign w:val="center"/>';
+  return `<w:tc><w:tcPr>${pr}</w:tcPr>${content || wP('')}</w:tc>`;
+}
+function wTbl(gridMm, rowsXml){
+  const grid = gridMm.map(TW);
+  const total = grid.reduce((a,b)=>a+b,0);
+  const b = v => `<w:${v} w:val="single" w:sz="4" w:space="0" w:color="000000"/>`;
+  return `<w:tbl><w:tblPr><w:tblW w:w="${total}" w:type="dxa"/><w:tblLayout w:type="fixed"/>
+    <w:tblBorders>${['top','left','bottom','right','insideH','insideV'].map(b).join('')}</w:tblBorders>
+    <w:tblCellMar><w:top w:w="40" w:type="dxa"/><w:left w:w="85" w:type="dxa"/><w:bottom w:w="40" w:type="dxa"/><w:right w:w="85" w:type="dxa"/></w:tblCellMar>
+    </w:tblPr><w:tblGrid>${grid.map(g=>`<w:gridCol w:w="${g}"/>`).join('')}</w:tblGrid>${rowsXml}</w:tbl>`;
+}
+const wTr = (cells, hdr) => `<w:tr>${hdr?'<w:trPr><w:tblHeader/></w:trPr>':''}${cells}</w:tr>`;
+
+function buildDocumentXml(){
+  const m = doc.meta, a = doc.assess;
+  const G = [17,33,10,29,18,21,6,4,12,20];
+  const span = (from, n) => TW(G.slice(from, from+n).reduce((x,y)=>x+y,0));
+  const lbl = (t, from, n=1) => wTc(wText(t,{jc:'center', r:{b:true}}), {w:span(from,n), span:n, lbl:true});
+  const val = (t, from, n=1, c=false) => wTc(wText(t, c?{jc:'center'}:{}), {w:span(from,n), span:n, vc:true});
+  const slot = problemSlot();
+
+  const flowRows = doc.flow.map((f,fi)=>{
+    const ls = lines(f.acts);
+    const problemTbl = wTbl([105], wTr(wTc(wP(wSegRuns(doc.problem)), {w:TW(105)}))) ;
+    let acts = ls.map((l,li)=>{
+      const lv = lineLevel(l);
+      let x = wP(wSegRuns(l, {b: lv===0}), {ind: [0,170,340][lv]});
+      if(slot && slot.fi===fi && slot.li===li) x += problemTbl + wP('');
+      return x;
+    }).join('');
+    if(!ls.length && slot && slot.fi===fi) acts = problemTbl + wP('');
+    const notes = lines(f.notes).map(l=>wP(wSegRuns(l))).join('');
+    return wTr(
+      wTc(wText(f.phase,{jc:'center', r:{b:true}}), {w:span(0,1), vc:true}) +
+      wTc(acts, {w:span(1,5), span:5}) +
+      wTc(wText(f.min?String(f.min):'',{jc:'center'}), {w:span(6,2), span:2, vc:true}) +
+      wTc(notes, {w:span(8,2), span:2})
+    );
+  }).join('');
+
+  const ql = questionLines();
+  const mainTbl = wTbl(G,
+    wTr(lbl('일시',0) + val(m.date,1,1,true) + lbl('대상',2) + val(gradeText(),3,4,true) + lbl('지도교사',7,2) + val(m.teacher,9,1,true)) +
+    wTr(lbl('단원',0) + val(m.unit,1,3) + lbl('차시',4) + val(m.period,5,2,true) + lbl('장 소',7,2) + val(m.place,9,1,true)) +
+    wTr(lbl('학습목표',0) + val(doc.goal,1,9)) +
+    wTr(lbl('성취기준',0) + val(doc.standards,1,9)) +
+    wTr(lbl('수업자\n의도',0) + val(doc.intent,1,9)) +
+    wTr(lbl('핵심 질문',0) + val(ql.join('\n'),1,9)) +
+    wTr(lbl('학습\n과정',0) + lbl('교 수 · 학 습  활 동',1,5) + lbl('시간\n(분)',6,2) + lbl('자료(□), 유의점(※),\n평가(☑)',8,2), true) +
+    flowRows
+  );
+
+  const E = [39,8,103,10,10];
+  const ew = i => TW(E[i]);
+  const elbl = (t,i) => wTc(wText(t,{jc:'center', r:{b:true}}), {w:ew(i), lbl:true});
+  const cc = (t,i,vm) => wTc(vm==='cont' ? wP('') : wText(t,{jc:'center'}), {w:ew(i), vm, vc:true});
+  const evalTbl = wTbl(E,
+    wTr(['평가 문항','구분','평가 기준','방법','시기'].map(elbl).join('')) +
+    wTr(cc(a.item,0,'restart') + cc('상',1) + wTc(wText(a.high),{w:ew(2),vc:true}) + cc(a.method,3,'restart') + cc(a.when,4,'restart')) +
+    wTr(cc('',0,'cont') + cc('중',1) + wTc(wText(a.mid),{w:ew(2),vc:true}) + cc('',3,'cont') + cc('',4,'cont')) +
+    wTr(cc('',0,'cont') + cc('하',1) + wTc(wText(a.low),{w:ew(2),vc:true}) + cc('',3,'cont') + cc('',4,'cont'))
+  );
+
+  const title = wP(wRun(titleText(), {b:true, sz:30}), {jc:'center', box:true});
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<w:body>
+${title}${wP('')}
+${mainTbl}
+${wP('')}
+${evalTbl}
+<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="${TW(15)}" w:right="${TW(20)}" w:bottom="${TW(15)}" w:left="${TW(20)}" w:header="567" w:footer="567" w:gutter="0"/></w:sectPr>
+</w:body></w:document>`;
+}
+
+const DOCX_STATIC = {
+  '[Content_Types].xml': `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>`,
+  '_rels/.rels': `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`,
+  'word/_rels/document.xml.rels': `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`,
+  'word/styles.xml': `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+<w:docDefaults>
+<w:rPrDefault><w:rPr><w:rFonts w:ascii="${FONT}" w:hAnsi="${FONT}" w:eastAsia="${FONT}" w:cs="${FONT}"/><w:sz w:val="19"/><w:szCs w:val="19"/><w:lang w:val="en-US" w:eastAsia="ko-KR"/></w:rPr></w:rPrDefault>
+<w:pPrDefault><w:pPr><w:spacing w:after="0" w:line="264" w:lineRule="auto"/></w:pPr></w:pPrDefault>
+</w:docDefaults>
+<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:pPr><w:wordWrap w:val="0"/></w:pPr></w:style>
+<w:style w:type="table" w:default="1" w:styleId="TableNormal"><w:name w:val="Normal Table"/><w:tblPr><w:tblInd w:w="0" w:type="dxa"/><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="108" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="108" w:type="dxa"/></w:tblCellMar></w:tblPr></w:style>
+</w:styles>`
+};
+
+/* 무압축(STORE) ZIP 작성 */
+const CRC_TABLE = (()=>{ const t=new Uint32Array(256); for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; t[n]=c>>>0; } return t; })();
+function crc32(u8){ let c=0xFFFFFFFF; for(let i=0;i<u8.length;i++) c = CRC_TABLE[(c^u8[i])&0xFF]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
+function zipStore(files){
+  const enc = new TextEncoder();
+  const parts = [], central = [];
+  let offset = 0;
+  for(const [name, text] of files){
+    const nameU8 = enc.encode(name), data = enc.encode(text), crc = crc32(data);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true); lh.setUint16(6,0x0800,true); lh.setUint16(8,0,true);
+    lh.setUint16(10,0,true); lh.setUint16(12,0x21,true); lh.setUint32(14,crc,true);
+    lh.setUint32(18,data.length,true); lh.setUint32(22,data.length,true); lh.setUint16(26,nameU8.length,true); lh.setUint16(28,0,true);
+    parts.push(new Uint8Array(lh.buffer), nameU8, data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0,0x02014b50,true); ch.setUint16(4,20,true); ch.setUint16(6,20,true); ch.setUint16(8,0x0800,true); ch.setUint16(10,0,true);
+    ch.setUint16(12,0,true); ch.setUint16(14,0x21,true); ch.setUint32(16,crc,true); ch.setUint32(20,data.length,true); ch.setUint32(24,data.length,true);
+    ch.setUint16(28,nameU8.length,true); ch.setUint32(42,offset,true);
+    central.push(new Uint8Array(ch.buffer), nameU8);
+    offset += 30 + nameU8.length + data.length;
+  }
+  const cdSize = central.reduce((s,p)=>s+p.length,0);
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true); end.setUint16(8,files.length,true); end.setUint16(10,files.length,true);
+  end.setUint32(12,cdSize,true); end.setUint32(16,offset,true);
+  return new Blob([...parts, ...central, new Uint8Array(end.buffer)], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+}
+function buildDocxBlob(){
+  return zipStore([...Object.entries(DOCX_STATIC), ['word/document.xml', buildDocumentXml()]]);
+}
+function downloadDocx(){
+  const m = doc.meta;
+  const name = `교수학습과정안_${sanitizeName(m.subject)}_${sanitizeName(m.unit)}${m.period?'_'+sanitizeName(m.period.replace('/','-')):''}.docx`;
+  downloadBlob(name, buildDocxBlob());
+  toast('DOCX 파일로 저장했어요. 한글이나 워드에서 열어 마무리하세요!');
+}
+
+/* ═══════════════════ 초기화 ═══════════════════ */
+renderDraftSlot();
+</script>
+</body>
+</html>
