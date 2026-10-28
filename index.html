@@ -146,6 +146,13 @@ details.cat summary{font-weight:700;cursor:pointer;padding:4px 0}
 #wt-tip .q{color:var(--muted);font-style:italic;margin:4px 0 0}
 #wt-tip .here{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
 #wt-tip ul{margin:4px 0 0;padding-left:18px}
+/* GRASPS 수행 과제 */
+details.grasps{border:1px solid var(--line);border-radius:10px;background:#fbfcfe;padding:10px 14px;margin-top:4px}
+details.grasps summary{font-weight:700;cursor:pointer}
+details.grasps .gr-row{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;align-items:center;margin-top:8px}
+details.grasps .gr-row label{margin:0;display:flex;align-items:center;gap:8px;font-size:14px}
+.gr-l{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:6px;background:var(--brand);color:#fff;font:800 13px/1 sans-serif;flex:none}
+@media (max-width:640px){ details.grasps .gr-row{grid-template-columns:minmax(0,1fr);gap:4px} }
 #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:90vw}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -252,7 +259,7 @@ details.cat summary{font-weight:700;cursor:pointer;padding:4px 0}
       </div>
       <div id="ai-tab-paste" style="display:none">
         <textarea id="ai-paste-text" rows="16" placeholder="AI가 보낸 응답 전체를 여기에 붙여넣으세요. { … } JSON 부분을 자동으로 찾아요."></textarea>
-        <div class="notice">⚠️ AI 초안은 '제안'일 뿐입니다. 적용 후 우리 반 학생과 수업 상황에 맞게 반드시 검토·수정하세요. (이미 고른 성취기준·AI 도구와, AI가 비워 둔 일시·인원·지도교사는 그대로 두고 나머지 내용은 덮어써집니다)</div>
+        <div class="notice">⚠️ AI 초안은 '제안'일 뿐입니다. 적용 후 우리 반 학생과 수업 상황에 맞게 반드시 검토·수정하세요. (이미 고른 성취기준·AI 도구·GRASPS와, AI가 비워 둔 일시·인원·지도교사는 그대로 두고 나머지 내용은 덮어써집니다)</div>
         <button class="btn primary" data-action="apply-ai">✨ 초안 적용하기</button>
       </div>
     </div>
@@ -272,6 +279,18 @@ const PHASES = ['도입','전개','정리'];
 const WHEN_PRESETS = ['도입','전개','전개(활동1)','전개(활동2)','정리'];
 const FORMS = ['전체','모둠','짝','개인','모둠+전체'];
 const METHOD_PRESETS = ['관찰 평가','자기 평가','동료 평가','구술 평가','서술형 평가','작품 평가','포트폴리오','체크리스트'];
+/* GRASPS 수행 과제 요소: [키, 글자, 이름, 설명, 예시] */
+const GRASPS = [
+  ['g','G','목표 (Goal)','수행 과제로 이루려는 목표','예: 우리 지역 국가유산의 역사적 의미 알리기'],
+  ['r','R','역할 (Role)','학생이 맡는 역할','예: 우리 지역 문화유산 해설사'],
+  ['a','A','대상 (Audience)','결과물을 보거나 듣는 사람','예: 우리 학교 1~2학년 동생들'],
+  ['s','S','상황 (Situation)','과제가 주어진 실제 맥락','예: 학교 축제에서 국가유산 전시관을 연다'],
+  ['p','P','수행·산출물 (Product)','학생이 만들거나 수행할 것','예: 국가유산 소개 카드(패들렛)'],
+  ['st','S','기준 (Standards)','성공의 기준 — 상·중·하 기준과 연결','예: 정확한 정보, 출처 표시, 역사적 의미를 근거와 함께 설명']
+];
+const blankGrasps = () => ({g:'',r:'',a:'',s:'',p:'',st:''});
+const hasGrasps = gr => !!gr && GRASPS.some(([k])=>String(gr[k]||'').trim());
+const graspsLines = gr => GRASPS.filter(([k])=>String(gr[k]||'').trim()).map(([k,l,name])=>[`${l} ${name.split(' ')[0]}`, gr[k].trim()]);
 const TIMING_PRESETS = ['수업 중','수업 후','활동1 중','활동2 중'];
 const NOTE_PRESETS = [
   '※ AI 검색·생성 결과를 그대로 활용하지 않고 신뢰성을 확인하도록 지도한다.',
@@ -327,24 +346,24 @@ const toolKeys = name => String(name).split(/\s*[()/]\s*/).map(x=>x.trim()).filt
 /* 백워드 설계 WHERETO: 각 요소의 설명과 이 앱에서 드러나는 곳 */
 const WHERETO = {
   W:{ l:'W', name:'Where/Why', ko:'방향과 이유', desc:'학습 목표와 학습 이유(필요성)를 명확히 이해하도록 돕습니다.', q:'우리는 어디로 가고 있으며, 왜 학습해야 할까?',
-      app:['1단계 성취기준 — 수업의 도착점','2단계 평가 — 어디까지 도달해야 하는지 먼저 정하기','4단계 학습목표','5단계 학습 문제와 ❶❷ 학습 순서'] },
+      app:['4단계 학습목표','5단계 학습 문제','5단계 도입 활동 — 학습 문제·학습 활동 확인','6단계 점검 — 성취기준·학습목표·학습 문제'] },
   H:{ l:'H', name:'Hook/Hold', ko:'흥미 유발과 집중', desc:'흥미 유발과 주의 집중을 위한 질문, 과제, 자료를 활용합니다.', q:'무엇이 우리를 궁금하게 만들까?',
-      app:['4단계 핵심 질문','5단계 도입 — 본시 내용으로 동기유발, 그 자료를 전개에서 재활용','5단계 핵심 발문 2~3개'] },
+      app:['4단계 핵심 질문','5단계 도입 활동 — 동기유발','6단계 점검 — 핵심 질문·도입 시간·발문'] },
   E1:{ l:'E', name:'Explore/Experience', ko:'탐구와 경험', desc:'핵심 내용을 깊이 탐구하고 직접 경험하며 관련 지식과 기술을 습득합니다.', q:'직접 탐구하고 경험하며 배운다!',
-      app:['3단계 AI·디지털 도구 — 탐구를 돕는 도구 고르기','5단계 전개 【활동1】【활동2】 — 집중 탐구 활동'] },
+      app:['5단계 전개 활동 — 【활동1】【활동2】 탐구','6단계 점검 — 전개 활동 수·AI 도구 반영'] },
   R:{ l:'R', name:'Reflect/Revise', ko:'성찰과 수정', desc:'수행 과정에서 피드백을 통해 다시 생각하고 수정하며 성찰합니다.', q:'어떻게 더 나아질 수 있을까?',
-      app:['3단계 AI 피드백 수업 도구','5단계 전개 — 발문과 동료 피드백','5단계 정리 — 학습 문제 다시 알아보기, 어려웠던 점 돌아보기'] },
+      app:['5단계 전개 활동 — 발문·동료 피드백','5단계 정리 활동 — 다시 돌아보기','5단계 자주 쓰는 유의점(※)','6단계 점검 — 발문·유의점·정리'] },
   E2:{ l:'E', name:'Evaluate', ko:'자기 평가', desc:'자신의 학습 성과와 이해도를 스스로 평가해 봅니다.', q:'나는 얼마나 이해했고, 어떤 성장을 했을까?',
-      app:['2단계 평가 — 상·중·하 기준을 자기 평가 기준으로도 활용','5단계 ☑ 과정중심평가','5단계 정리 — 알게 된 점 나누기'] },
+      app:['5단계 정리 활동 — 알게 된 점','5단계 자료·유의점·평가 — ☑ 과정중심평가','6단계 점검 — ☑ 평가·상중하 기준'] },
   T:{ l:'T', name:'Tailored', ko:'개별화', desc:'학생들의 학습 스타일, 선행 지식 등에 맞춰 수업을 개별화합니다.', q:'나에게 맞는 방법으로 배운다!',
-      app:['1단계 대상·학생 수 — 우리 반의 출발점','2단계 평가 「하」 — 도움이 필요한 학생 지원','3단계 맞춤형 학습 도구','4단계 수업자 의도 — 학생 실태 근거','5단계 학습 형태 [짝]·[모둠]·[개인]'] },
+      app:['4단계 수업자 의도 — 학생 실태 근거','5단계 전개 활동 — 학습 형태 [짝]·[모둠]·[개인]','5단계 자료·유의점 — 학생별 지원','6단계 점검 — 수업자 의도·학습 형태'] },
   O:{ l:'O', name:'Organized', ko:'조직화', desc:'학습 경험을 효과적으로 구조화하여 학습 목표 달성을 촉진합니다.', q:'체계적으로 구성하여 목표에 도달한다!',
-      app:['전체 순서 — 평가 → 도구 → 목표 → 활동(백워드 설계)','5단계 도입-전개-정리와 시간 배분','6단계 작성 점검'] }
+      app:['4단계 수업자 의도·핵심 질문 제시 단계','5단계 학습 문제 ❶❷ 순서','5단계 학습 과정·시간 배분','6단계 점검 — 시간 배분'] }
 };
 const WT_ORDER = ['W','H','E1','R','E2','T','O'];
 /* 배지: here = 이 자리에서 그 요소가 어떻게 드러나는지 */
 const wt = (k, here) => `<span class="wt wt-${k}" data-wt="${k}" data-here="${esc(here||'')}" tabindex="0">${WHERETO[k].l}</span>`;
-const wtStrip = () => `<div class="wt-strip"><b>백워드 설계 WHERETO</b> ${WT_ORDER.map(k=>wt(k)).join('')} <span>· 글자에 마우스를 올리면 설명이 보여요</span></div>`;
+const wtStrip = () => `<div class="wt-strip"><b>백워드 설계 WHERETO</b> ${WT_ORDER.map(k=>wt(k)).join('')} <span>· 4~6단계 항목 옆 글자에 마우스를 올리면 설명이 보여요</span></div>`;
 
 /* 성취기준 데이터(standards-data.js): {c 코드, s 교과, g 학년군, d 영역, t 성취기준} */
 const STD_DATA = Array.isArray(window.STANDARDS) ? window.STANDARDS : [];
@@ -382,7 +401,9 @@ const EXAMPLE = {
     high:'다양한 디지털 자료를 비교하여 국가유산의 특징을 조사하고, 그 역사적 의미를 근거를 들어 구체적으로 설명하였다.',
     mid:'디지털 자료를 활용하여 국가유산의 특징을 조사하고, 그 역사적 의미를 설명하였다.',
     low:'도움을 받아 국가유산의 특징을 조사하고, 그 역사적 의미를 간단하게 설명하였다.',
-    method:'관찰 평가', when:'수업 중' }
+    method:'관찰 평가', when:'수업 중',
+    grasps:{ g:'우리 지역 국가유산의 역사적 의미를 알리기', r:'우리 지역 문화유산 해설사', a:'우리 학교 1~2학년 동생들',
+      s:'학교 축제에서 「우리 지역 국가유산」 전시관을 연다', p:'국가유산 소개 카드(패들렛)', st:'정확한 정보 · 출처 표시 · 역사적 의미를 근거와 함께 설명' } }
 };
 
 /* ═══════════════════ 유틸 ═══════════════════ */
@@ -414,7 +435,7 @@ function blankDoc(){
       {phase:'전개', min:30, acts:'▣【활동1】  [모둠]\n▪ \n- \n▣【활동2】  [전체]\n▪ \n- ', notes:''},
       {phase:'정리', min:5, acts:'▣ 학습 문제 다시 알아보기\n▣ 알게 된 점 나누기\n▪ \n▪ 친구와 함께 공부하며 도움을 받은 점 이야기하기', notes:''}
     ],
-    assess:{ item:'', high:'', mid:'', low:'', method:'관찰 평가', when:'수업 중' }
+    assess:{ item:'', high:'', mid:'', low:'', method:'관찰 평가', when:'수업 중', grasps:blankGrasps() }
   };
 }
 
@@ -442,7 +463,11 @@ function normalizeDoc(raw){
     d.flow = raw.flow.map(f=>({ phase:S(f.phase ?? f.stage), min:parseInt(f.min ?? f.minutes,10)||0, acts:S(f.acts), notes:S(f.notes) }));
   }
   const a = raw.assess || (Array.isArray(raw.assessment) ? raw.assessment[0] : null);
-  if(a) d.assess = { item:S(a.item), high:S(a.high), mid:S(a.mid), low:S(a.low), method:S(a.method), when:S(a.when) };
+  if(a){
+    const g = a.grasps || {};
+    d.assess = { item:S(a.item), high:S(a.high), mid:S(a.mid), low:S(a.low), method:S(a.method), when:S(a.when),
+      grasps:Object.fromEntries(GRASPS.map(([k])=>[k, S(g[k])])) };
+  }
   return d;
 }
 
@@ -479,7 +504,7 @@ function showWizard(){
 }
 function openDoc(newDoc, startStep){ doc = newDoc; step = startStep||1; saveLocal(); showWizard(); }
 
-function renderWtStrips(){ ['#home-wt','#wiz-wt'].forEach(id=>{ const el=$(id); if(el) el.innerHTML = wtStrip(); }); }
+function renderWtStrips(){ const el=$('#home-wt'); if(el) el.innerHTML = wtStrip(); }
 
 function renderDraftSlot(){
   const slot = $('#draft-slot');
@@ -526,6 +551,7 @@ function renderStep(){
   renderStepNav();
   const el = $('#step-content');
   el.innerHTML = [stepBasic, stepAssess, stepTools, stepGoal, stepFlow, stepExport][step-1]();
+  $('#wiz-wt').innerHTML = step>=4 ? wtStrip() : '';
   window.scrollTo({top:0});
   if(step===1) renderStdPicker();
   if(step===5) updateTimeSum();
@@ -537,7 +563,7 @@ function stepBasic(){
   const m = doc.meta;
   return `
   <div class="step-card">
-    <h3>기본 정보${wt('T','대상 학년과 학생 수로 우리 반의 출발점을 확인해요.')}</h3>
+    <h3>기본 정보</h3>
     <p class="desc">과정안 맨 위 표(일시·대상·지도교사·단원·차시·장소)에 들어갑니다.</p>
     <div class="grid3">
       ${field('교과', `<select data-bind="meta.subject"><option value="">선택하세요</option>${SUBJECTS.map(s=>`<option ${m.subject===s?'selected':''}>${s}</option>`).join('')}</select>`, '제목 「질문이 넘치는 (  )과」에 들어가요.')}
@@ -559,7 +585,7 @@ function stepBasic(){
     </div>
   </div>
   <div class="step-card">
-    <h3>성취기준${wt('W','성취기준으로 이 수업의 도착점(어디로 가는지)을 먼저 정해요.')}</h3>
+    <h3>성취기준</h3>
     <p class="desc">양식의 「성취기준」 칸에 들어갑니다. 교과를 고르면 2022 개정 교육과정 성취기준을 목록에서 고를 수 있어요.</p>
     <div id="std-picker"></div>
     ${field('선택한 성취기준', ta('standards', doc.standards, '목록에서 고르거나 직접 입력하세요.\n예: [4사06-01] 지역의 문화유산을 통해 …', 3), '여러 개면 줄바꿈으로 구분하세요. 직접 고쳐 써도 돼요.')}
@@ -612,24 +638,24 @@ function stepGoal(){
       <div class="row-head"><span class="row-title">핵심 질문 ${i+1}</span>
         <div class="row-tools"><button class="btn sm" data-action="del-q" data-idx="${i}">🗑</button></div></div>
       <div class="grid3" style="grid-template-columns:minmax(0,3fr) minmax(0,1fr)">
-        ${field('질문', inp(`questions.${i}.q`, q.q, '예: 내가 찾은 정보가 믿을 만하다는 것을 어떻게 확인할 수 있을까?'))}
-        ${field('제시 단계', inp(`questions.${i}.when`, q.when, '예: 전개(활동1)', 'list="dl-when"'))}
+        ${field('질문'+wt('H','궁금증을 일으키고, 수업 내내 생각을 붙잡아 두는 질문이에요.'), inp(`questions.${i}.q`, q.q, '예: 내가 찾은 정보가 믿을 만하다는 것을 어떻게 확인할 수 있을까?'))}
+        ${field('제시 단계'+wt('O','질문을 던질 때를 정해 수업 흐름 속에 배치해요.'), inp(`questions.${i}.when`, q.when, '예: 전개(활동1)', 'list="dl-when"'))}
       </div>
     </div>`).join('');
   return `
   <div class="step-card">
-    <h3>학습목표${wt('W','학생이 이 수업에서 무엇을 할 수 있게 되는지 분명히 해요.')}</h3>
+    <h3>학습목표</h3>
     <p class="desc">양식의 「학습목표」 칸에 들어갑니다. 1단계의 성취기준과 2단계의 평가에 맞춰 써요.</p>
-    ${field('학습목표', ta('goal', doc.goal, '예: 디지털 도구를 활용하여 우리 지역의 국가유산을 조사하고, 그 역사적 의미를 설명할 수 있다.', 2))}
+    ${field('학습목표'+wt('W','학생이 이 수업에서 무엇을 할 수 있게 되는지 분명히 해요.'), ta('goal', doc.goal, '예: 디지털 도구를 활용하여 우리 지역의 국가유산을 조사하고, 그 역사적 의미를 설명할 수 있다.', 2))}
   </div>
   <div class="step-card">
-    <h3>수업자 의도${wt('T','학생 실태를 근거로 우리 반에 맞춘 초점을 정해요.')}${wt('O','방법·자료·내용·발문 중 핵심을 골라 수업을 짜임새 있게 묶어요.')}</h3>
+    <h3>수업자 의도</h3>
     <div class="tip-box">→ 수업의 흐름(도입-전개-정리)을 설명하는 것이 <b>아닙니다</b>.<br>
     → 본시 성취기준, 교과 역량, 학습 목표, 실태 분석을 통해 목표에 도달하기 위해 <b>학습 방법, 자료, 내용(재구성), 발문 중 어떤 것을 핵심적으로 할 것인지 초점화</b>하여 진술합니다.</div>
-    ${field('수업자 의도', ta('intent', doc.intent, '예: 본 차시는 … 에 초점을 둔다. 학생들은 … 이에 … 을 핵심으로 한다.', 6))}
+    ${field('수업자 의도'+wt('T','학생 실태를 근거로 우리 반에 맞춘 초점을 정해요.')+wt('O','방법·자료·내용·발문 중 핵심을 골라 수업을 짜임새 있게 묶어요.'), ta('intent', doc.intent, '예: 본 차시는 … 에 초점을 둔다. 학생들은 … 이에 … 을 핵심으로 한다.', 6))}
   </div>
   <div class="step-card">
-    <h3>핵심 질문${wt('H','궁금증을 일으키고, 수업 내내 생각을 붙잡아 두는 질문이에요.')}</h3>
+    <h3>핵심 질문</h3>
     <p class="desc">→ 1~2가지, 어느 단계에서 할지 명시합니다.</p>
     ${qs}
     ${doc.questions.length<2?'<button class="btn" data-action="add-q">＋ 핵심 질문 추가</button>':''}
@@ -638,7 +664,14 @@ function stepGoal(){
   ${wizFooter()}`;
 }
 
-/* ── 3단계: 교수·학습 활동 ── */
+/* ── 교수·학습 활동 단계 ── */
+/* 학습 과정(도입·전개·정리)에 따라 활동 칸에 붙는 WHERETO */
+function phaseBadges(phase){
+  if(/도입/.test(phase)) return wt('H','본시 내용으로 동기유발하고 그 자료를 전개에서 다시 써요.') + wt('W','학습 문제와 학습 활동을 확인해요.');
+  if(/전개/.test(phase)) return wt('E1','【활동1】【활동2】로 직접 탐구하고 경험해요.') + wt('R','발문과 동료 피드백으로 다시 생각하고 고쳐요.') + wt('T','짝·모둠·개인 등 학습 형태로 학생에게 맞춰요.');
+  if(/정리/.test(phase)) return wt('R','학습 문제를 다시 보며 어려웠던 점을 돌아봐요.') + wt('E2','알게 된 점을 말하며 스스로 이해도를 평가해요.');
+  return '';
+}
 function actsToolbar(i){
   const b = (ins,label,title)=>`<button type="button" data-action="ins" data-target="flow.${i}.acts" data-ins="${esc(ins)}" title="${esc(title||'')}">${esc(label)}</button>`;
   return `<div class="tbar">
@@ -663,34 +696,34 @@ function stepFlow(){
         </div>
       </div>
       <div class="grid4">
-        ${field('학습 과정', inp(`flow.${i}.phase`, f.phase, '도입/전개/정리', 'list="dl-phase"'))}
-        ${field('시간(분)', `<input type="number" min="0" step="1" data-bind="flow.${i}.min" value="${f.min||''}" placeholder="5">`)}
+        ${field('학습 과정'+wt('O','도입-전개-정리로 학습 경험을 구조화해요.'), inp(`flow.${i}.phase`, f.phase, '도입/전개/정리', 'list="dl-phase"'))}
+        ${field('시간(분)'+wt('O','시간 배분으로 활동의 무게를 조절해요.'), `<input type="number" min="0" step="1" data-bind="flow.${i}.min" value="${f.min||''}" placeholder="5">`)}
       </div>
-      <div class="field"><label>교수·학습 활동 <span class="opt">— 버튼으로 기호를 넣을 수 있어요 · __낱말__ 은 밑줄</span></label>
+      <div class="field"><label>교수·학습 활동${phaseBadges(f.phase)} <span class="opt">— 버튼으로 기호를 넣을 수 있어요 · __낱말__ 은 밑줄</span></label>
         ${actsToolbar(i)}
         ${ta(`flow.${i}.acts`, f.acts, '▣ 우리 지역의 옛 모습 떠올리기\n▪ 옛 사진과 오늘날 사진 비교하기\n- 달라진 점 찾기', 9)}
       </div>
-      <div class="field"><label>자료(□), 유의점(※), 평가(☑) <span class="opt">— AI·디지털 도구는 □, 활용 유의사항은 ※로 적어요</span></label>
+      <div class="field"><label>자료(□), 유의점(※), 평가(☑)${wt('E2','☑ 과정중심평가로 학생이 이해도를 확인해요.')}${wt('T','※ 유의점에 학생별 지원 방법을 적어요.')} <span class="opt">— AI·디지털 도구는 □, 활용 유의사항은 ※로 적어요</span></label>
         ${notesToolbar(i)}
         ${ta(`flow.${i}.notes`, f.notes, '□ 패들렛\n※ AI 검색 결과의 신뢰성을 확인하도록 지도한다.\n☑ 관찰 평가', 4)}
       </div>
     </div>`).join('');
   return `
   <div class="step-card">
-    <h3>학습 문제${wt('W','무엇을 왜 배우는지 학생과 함께 확인해요.')}${wt('O','❶❷ 번호로 학습 순서를 구조화해요.')}</h3>
+    <h3>학습 문제</h3>
     <p class="desc">「학습 문제 확인하기」 줄 아래에 상자로 들어갑니다. ❶❷로 학습 순서를 표시하고, 중심 낱말은 <b>__낱말__</b>처럼 감싸면 밑줄이 그어져요.</p>
     <div class="tbar">${['❶','❷','❸'].map(c=>`<button type="button" data-action="ins" data-target="problem" data-ins="${c}">${c}</button>`).join('')}
       <button type="button" data-action="underline" data-target="problem">__밑줄__ (선택 영역)</button></div>
-    ${inp('problem', doc.problem, '예: ❶인물의 __성격__을 짐작하며 ❷이야기를 읽어 봅시다.')}
+    ${field('학습 문제'+wt('W','무엇을 왜 배우는지 학생과 함께 확인해요.')+wt('O','❶❷ 번호로 학습 순서를 구조화해요.'), inp('problem', doc.problem, '예: ❶인물의 __성격__을 짐작하며 ❷이야기를 읽어 봅시다.'))}
   </div>
   <div class="step-card">
-    <h3>교수·학습 활동${wt('O','도입-전개-정리와 시간 배분으로 학습 경험을 구조화해요.')}</h3>
+    <h3>교수·학습 활동</h3>
     <div class="tip-box"><b>양식 작성 안내</b>
       <ul>
         <li>▣ 형식 요소보다는 <b>내용 요소</b>로 제시 · ▪ ~떠올리기, ~알아보기 · - 하위 내용</li>
-        <li><b>도입</b>${wt('H','본시 내용으로 동기유발하고 그 자료를 전개에서 다시 써요.')}${wt('W','학습 문제와 학습 활동을 확인해요.')}: 최대 5분, 본시 내용을 동기유발화, 전개에서 동기유발 자료 재활용, 학습 문제 중심 낱말에 밑줄, 학습 순서는 번호로 명료화</li>
-        <li><b>전개</b>${wt('E1','【활동1】【활동2】로 직접 탐구하고 경험해요.')}${wt('R','발문과 동료 피드백으로 다시 생각하고 고쳐요.')}${wt('T','짝·모둠·개인 등 학습 형태로 학생에게 맞춰요.')}: 활동 최대 2개, 집중 활동, 핵심 발문 2~3개, 짝·모둠·전체 활동, 삶과 연결하기, 학습자 중심 용어, 과정중심평가 명시(☑)</li>
-        <li><b>정리</b>${wt('R','학습 문제를 다시 보며 어려웠던 점을 돌아봐요.')}${wt('E2','알게 된 점을 말하며 스스로 이해도를 평가해요.')}: 학습 문제 다시 알아보기, 알게 된 점(느낀 점·어려움·즐거움·궁금함 중 선택, 차시 예고 ✕), 친구와 함께 공부하며 도움받은 것, 생활과 연결하기</li>
+        <li><b>도입</b>: 최대 5분, 본시 내용을 동기유발화, 전개에서 동기유발 자료 재활용, 학습 문제 중심 낱말에 밑줄, 학습 순서는 번호로 명료화</li>
+        <li><b>전개</b>: 활동 최대 2개, 집중 활동, 핵심 발문 2~3개, 짝·모둠·전체 활동, 삶과 연결하기, 학습자 중심 용어, 과정중심평가 명시(☑)</li>
+        <li><b>정리</b>: 학습 문제 다시 알아보기, 알게 된 점(느낀 점·어려움·즐거움·궁금함 중 선택, 차시 예고 ✕), 친구와 함께 공부하며 도움받은 것, 생활과 연결하기</li>
       </ul></div>
     <div style="margin-bottom:12px"><span class="time-sum" id="time-sum"></span></div>
     ${rows}
@@ -698,7 +731,7 @@ function stepFlow(){
     ${datalist('dl-phase', PHASES)}
   </div>
   <div class="step-card">
-    <h3>자주 쓰는 유의점(※) 문구</h3>
+    <h3>자주 쓰는 유의점(※) 문구${wt('R','AI 결과를 그대로 받아들이지 않고 다시 확인·수정하도록 안내해요.')}</h3>
     <p class="desc">누르면 <b>전개</b> 행(없으면 마지막 행)의 자료·유의점 칸 끝에 추가돼요.</p>
     <div class="tbar">${NOTE_PRESETS.map((p,i)=>`<button type="button" data-action="add-note" data-idx="${i}">＋ ${esc(p.slice(2))}</button>`).join('')}</div>
     <p class="desc" style="margin:10px 0 6px">선택한 AI·디지털 도구(□) — 누르면 같은 방식으로 자료 칸에 추가돼요.</p>
@@ -714,7 +747,7 @@ function stepAssess(){
   const a = doc.assess;
   return `
   <div class="step-card">
-    <h3>평가${wt('W','도달해야 할 모습을 활동보다 먼저 정해요(백워드 설계).')}${wt('E2','상·중·하 기준을 학생 자기 평가 기준으로도 쓸 수 있어요.')}${wt('T','「하」 수준의 「도움을 받아」는 학생별 지원 계획이에요.')}</h3>
+    <h3>평가</h3>
     <p class="desc">과정안 아래쪽 평가 표(평가 문항 · 구분 · 평가 기준 · 방법 · 시기)에 들어갑니다.</p>
     <div class="tip-box"><b>백워드 설계</b> — 학생이 도달해야 할 모습(평가)을 먼저 정하고, 다음 단계에서 목표·질문을, 그다음 그 평가에 도달하도록 교수·학습 활동을 설계해요.</div>
     ${field('평가 문항', ta('assess.item', a.item, '예: 우리 지역의 국가유산을 조사하여 그 역사적 의미를 설명하였는가?', 2), '「~하였는가?」 형태로 씁니다.')}
@@ -726,6 +759,15 @@ function stepAssess(){
       ${field('시기', inp('assess.when', a.when, '예: 수업 중', 'list="dl-timing"'))}
     </div>
     ${datalist('dl-method', METHOD_PRESETS)}${datalist('dl-timing', TIMING_PRESETS)}
+    <details class="grasps" ${hasGrasps(a.grasps)?'open':''}>
+      <summary>🎯 GRASPS 수행 과제 <span class="opt">(선택 · 채운 칸만 평가 표 위에 들어가요)</span></summary>
+      <p class="hint" style="margin:6px 0 2px">학생이 실제 상황에서 수행할 과제를 6가지 요소로 간단히 적어요. 비워 두면 양식에 나오지 않아요.</p>
+      ${GRASPS.map(([k,l,name,desc,ex])=>`
+        <div class="gr-row">
+          <label title="${esc(desc)}"><span class="gr-l">${l}</span>${esc(name)}</label>
+          <input data-bind="assess.grasps.${k}" value="${esc(a.grasps[k])}" placeholder="${esc(desc+' — '+ex)}">
+        </div>`).join('')}
+    </details>
   </div>
   ${wizFooter()}`;
 }
@@ -750,7 +792,7 @@ function stepTools(){
     </details>`).join('');
   return `
   <div class="step-card">
-    <h3>AI·디지털 도구${wt('E1','도구로 직접 탐구하고 경험하는 활동을 설계해요.')}${wt('R','AI 피드백 도구로 수행 중에 다시 생각하고 고쳐요.')}${wt('T','맞춤형 학습 도구로 학생 수준에 맞춰요.')}</h3>
+    <h3>AI·디지털 도구</h3>
     <p class="desc">이 수업에서 쓸 도구를 고르고 활용 계획을 적어 주세요. 양식에 별도 칸은 없고, 교수·학습 활동의 자료(□) 칸과 AI 초안 프롬프트에 반영돼요.</p>
     <div class="tip-box">2단계에서 정한 <b>평가에 도달하는 데 도움이 되는 도구</b>만 골라요. 도구는 '답을 주는 도구'가 아니라 탐구를 돕는 도구로 활용합니다.</div>
     <label>선택한 도구 <span class="opt">(${doc.tools.length}개)</span></label>
@@ -772,7 +814,7 @@ function stepTools(){
 function stepExport(){
   return `
   <div class="step-card">
-    <h3>미리보기 · 출력${wt('O','작성 점검으로 짜임새(시간·활동 수·평가 명시)를 확인해요.')}</h3>
+    <h3>미리보기 · 출력</h3>
     <p class="desc">작성 점검을 확인하고 DOCX로 내려받으세요. 한글(HWP)과 MS워드에서 모두 열어 편집할 수 있어요.</p>
     <div class="export-bar">
       <button class="btn accent" data-action="download-docx">📄 DOCX 다운로드</button>
@@ -895,6 +937,7 @@ function renderPageHTML(){
     <div class="gap"></div>
     <table class="f">
       <colgroup>${[39,8,103,10,10].map(w=>`<col style="width:${w}mm">`).join('')}</colgroup>
+      ${hasGrasps(a.grasps) ? `<tr>${L('수행 과제<br>(GRASPS)')}<td colspan="4">${graspsLines(a.grasps).map(([h,t])=>`<div><b>${esc(h)}</b>: ${esc(t)}</div>`).join('')}</td></tr>` : ''}
       <tr>${['평가 문항','구분','평가 기준','방법','시기'].map(L).join('')}</tr>
       <tr><td rowspan="3" class="c">${V(a.item)}</td><td class="c">상</td><td>${V(a.high)}</td><td rowspan="3" class="c">${V(a.method)}</td><td rowspan="3" class="c">${V(a.when)}</td></tr>
       <tr><td class="c">중</td><td>${V(a.mid)}</td></tr>
@@ -923,37 +966,37 @@ window.addEventListener('resize', debounce(fitPreview, 100));
 /* ═══════════════════ 작성 점검 ═══════════════════ */
 function renderChecklist(){
   const items = [];
-  const add = (ok, msg) => items.push(`<li class="${ok?'ok':'no'}">${msg}</li>`);
+  const add = (ok, msg, badges='') => items.push(`<li class="${ok?'ok':'no'}">${msg}${badges}</li>`);
   const m = doc.meta;
   add(m.subject && m.unit && m.period, '교과·단원·차시를 입력했어요.');
-  add(doc.goal.trim(), '학습목표를 입력했어요.');
-  add(doc.standards.trim(), '성취기준을 입력했어요.');
-  add(doc.intent.trim() && !/도입.*전개.*정리/.test(doc.intent), '수업자 의도를 흐름 설명이 아닌 초점 중심으로 썼어요.');
+  add(doc.goal.trim(), '학습목표를 입력했어요.', wt('W','목표가 분명해야 학생이 어디로 가는지 알아요.'));
+  add(doc.standards.trim(), '성취기준을 입력했어요.', wt('W','성취기준이 이 수업의 도착점이에요.'));
+  add(doc.intent.trim() && !/도입.*전개.*정리/.test(doc.intent), '수업자 의도를 흐름 설명이 아닌 초점 중심으로 썼어요.', wt('T','학생 실태에 맞춘 초점이 드러나는지 봐요.')+wt('O','핵심 하나로 수업이 묶이는지 봐요.'));
   const qs = doc.questions.filter(q=>q.q.trim());
-  add(qs.length>=1 && qs.length<=2 && qs.every(q=>q.when.trim()), '핵심 질문 1~2개에 제시 단계를 모두 적었어요.');
-  add(doc.problem.trim(), '학습 문제를 입력했어요.');
+  add(qs.length>=1 && qs.length<=2 && qs.every(q=>q.when.trim()), '핵심 질문 1~2개에 제시 단계를 모두 적었어요.', wt('H','질문으로 궁금증을 일으키고 붙잡아요.'));
+  add(doc.problem.trim(), '학습 문제를 입력했어요.', wt('W','무엇을 왜 배우는지 확인해요.'));
   const t = totalMin(), d = +m.duration||40;
-  add(t===d, `시간 배분 합계가 ${d}분이에요. (현재 ${t}분)`);
+  add(t===d, `시간 배분 합계가 ${d}분이에요. (현재 ${t}분)`, wt('O','시간 배분이 맞아야 계획대로 흘러가요.'));
   const intro = doc.flow.find(f=>/도입/.test(f.phase));
-  add(intro && (parseInt(intro.min,10)||0)<=5*(d/40), `도입은 최대 ${5*(d/40)}분이에요.`);
+  add(intro && (parseInt(intro.min,10)||0)<=5*(d/40), `도입은 최대 ${5*(d/40)}분이에요.`, wt('H','짧고 강하게 흥미를 끌어요.'));
   const dev = doc.flow.filter(f=>/전개/.test(f.phase)).map(f=>f.acts).join('\n');
   const actCount = new Set((dev.match(/【활동\s*\d+】/g)||[]).map(s=>s.replace(/\s/g,''))).size;
-  add(actCount>=1 && actCount<=2, `전개 활동은 최대 2개예요. (현재 ${actCount}개)`);
+  add(actCount>=1 && actCount<=2, `전개 활동은 최대 2개예요. (현재 ${actCount}개)`, wt('E1','깊이 탐구할 활동에 집중해요.'));
   const allActs = doc.flow.map(f=>f.acts).join('\n');
   const askCount = (allActs.match(/발문/g)||[]).length;
-  add(askCount>=2 && askCount<=3, `핵심 발문 2~3개를 표시했어요. (현재 ${askCount}개)`);
-  add(FORM_RE.test(dev), '전개 활동에 학습 형태([전체]·[모둠]·[짝]·[개인])를 표시했어요.');
+  add(askCount>=2 && askCount<=3, `핵심 발문 2~3개를 표시했어요. (현재 ${askCount}개)`, wt('H','발문으로 생각을 붙잡아요.')+wt('R','발문으로 다시 생각하게 해요.'));
+  add(FORM_RE.test(dev), '전개 활동에 학습 형태([전체]·[모둠]·[짝]·[개인])를 표시했어요.', wt('T','학생에게 맞는 학습 형태를 골라요.'));
   const notes = doc.flow.map(f=>f.notes).join('\n');
   const flowText = allActs + '\n' + notes;
   const missing = doc.tools.filter(t=>!toolKeys(t.name).some(k=>flowText.includes(k))).map(t=>t.name);
-  add(doc.tools.length>0, 'AI·디지털 도구를 1개 이상 골랐어요.');
-  if(doc.tools.length) add(!missing.length, missing.length ? `활동·자료 칸에 아직 없는 도구가 있어요: ${esc(missing.join(', '))}` : '선택한 도구를 모두 활동·자료 칸에 반영했어요.');
-  add(/☑/.test(notes), '자료·유의점 칸에 과정중심평가(☑)를 명시했어요.');
-  add(/※/.test(notes), '자료·유의점 칸에 유의점(※)을 적었어요. (AI 활용 유의사항 포함)');
+  add(doc.tools.length>0, 'AI·디지털 도구를 1개 이상 골랐어요.', wt('E1','도구로 직접 탐구하고 경험해요.'));
+  if(doc.tools.length) add(!missing.length, missing.length ? `활동·자료 칸에 아직 없는 도구가 있어요: ${esc(missing.join(', '))}` : '선택한 도구를 모두 활동·자료 칸에 반영했어요.', wt('E1','고른 도구가 실제 탐구 활동에 쓰이는지 봐요.'));
+  add(/☑/.test(notes), '자료·유의점 칸에 과정중심평가(☑)를 명시했어요.', wt('E2','수업 중에 이해도를 확인해요.'));
+  add(/※/.test(notes), '자료·유의점 칸에 유의점(※)을 적었어요. (AI 활용 유의사항 포함)', wt('R','AI 결과를 다시 확인하고 고치도록 안내해요.'));
   const outro = doc.flow.find(f=>/정리/.test(f.phase));
-  add(!outro || !/차시\s*예고/.test(outro.acts), '정리 단계에 차시 예고를 넣지 않았어요.');
+  add(!outro || !/차시\s*예고/.test(outro.acts), '정리 단계에 차시 예고를 넣지 않았어요.', wt('R','정리는 오늘 배움을 돌아보는 시간이에요.'));
   const a = doc.assess;
-  add(a.item.trim() && a.high.trim() && a.mid.trim() && a.low.trim(), '평가 문항과 상·중·하 기준을 모두 입력했어요.');
+  add(a.item.trim() && a.high.trim() && a.mid.trim() && a.low.trim(), '평가 문항과 상·중·하 기준을 모두 입력했어요.', wt('E2','기준이 있어야 스스로 평가할 수 있어요.'));
   $('#check-list').innerHTML = items.join('');
 }
 
@@ -1126,6 +1169,7 @@ function buildPrompt(){
     m.period && `- 차시: ${m.period}`,
     `- 수업 시간: ${d}분${d===80?' (2차시 블록)':''}`,
     doc.goal && `- 학습목표: ${doc.goal}`,
+    hasGrasps(doc.assess.grasps) && `- GRASPS 수행 과제: ${graspsLines(doc.assess.grasps).map(([h,t])=>`${h} ${t}`).join(' / ')}`,
     doc.standards && `- 성취기준: ${doc.standards.replace(/\n/g,' / ')}`,
     doc.intent && `- 수업자 의도 메모: ${doc.intent}`,
     qs && `- 핵심 질문: ${qs}`,
@@ -1157,7 +1201,8 @@ ${given}
    - 전개: 활동은 최대 2개이며 "▣【활동1】 활동명 [모둠]"처럼 줄 끝에 학습 형태를 [전체]·[모둠]·[짝]·[개인]·[모둠+전체] 중에서 표시합니다. 핵심 발문 2~3개를 "- 발문: …" 형태로 넣고, 삶과 연결하는 활동을 포함합니다.
    - 정리: 학습 문제 다시 알아보기, 알게 된 점(느낀 점·어려움·즐거움·궁금함 중 선택), 친구와 함께 공부하며 도움받은 점(경청·인성), 생활과 연결하기. 차시 예고는 쓰지 않습니다.
    - "notes"는 한 줄에 하나씩, □로 시작하면 자료(AI·디지털 도구 포함), ※로 시작하면 유의점, ☑로 시작하면 평가입니다. AI 활용 유의점(결과의 신뢰성 확인, 저작권·출처, 개인정보 보호, 디지털 시민성, AI 결과의 비판적 수용)을 해당 활동 행의 ※로 2~4개 넣고, 과정중심평가를 전개 행에 ☑로 명시합니다.
-7. assess(평가): 평가 문항 1개를 "~하였는가?" 형태로, 상·중·하 평가 기준은 "~하였다." 형태의 수행 수준 진술로 씁니다. 하 수준은 "도움을 받아 ~ 간단하게 ~하였다"처럼 씁니다. method(방법)와 when(시기)을 적습니다.
+7. assess.grasps(GRASPS 수행 과제): g 목표, r 역할, a 대상(청중), s 상황, p 수행·산출물, st 기준을 각각 한 줄로 간단히 씁니다. 입력 정보에 GRASPS가 있으면 그대로 옮기고, 평가 문항과 상·중·하 기준은 그 수행 과제와 st(기준)에 맞춥니다.
+   assess(평가): 평가 문항 1개를 "~하였는가?" 형태로, 상·중·하 평가 기준은 "~하였다." 형태의 수행 수준 진술로 씁니다. 하 수준은 "도움을 받아 ~ 간단하게 ~하였다"처럼 씁니다. method(방법)와 when(시기)을 적습니다.
 
 [출력 형식 — 아래 스키마의 JSON만 출력하세요. 설명 문장 금지]
 {
@@ -1173,7 +1218,8 @@ ${given}
     {"phase":"전개","min":${d-intro*2},"acts":"…","notes":"…\\n☑ …"},
     {"phase":"정리","min":${intro},"acts":"…","notes":"…"}
   ],
-  "assess": {"item":"~하였는가?","high":"상 기준","mid":"중 기준","low":"하 기준","method":"관찰 평가","when":"수업 중"}
+  "assess": {"item":"~하였는가?","high":"상 기준","mid":"중 기준","low":"하 기준","method":"관찰 평가","when":"수업 중",
+             "grasps": {"g":"목표","r":"역할","a":"대상","s":"상황","p":"수행·산출물","st":"기준"}}
 }`;
 }
 
@@ -1195,6 +1241,7 @@ function applyAIResponse(){
   newDoc.meta.duration = doc.meta.duration;
   if(!newDoc.tools.length) newDoc.tools = doc.tools;
   if(doc.standards.trim()) newDoc.standards = doc.standards;
+  if(hasGrasps(doc.assess.grasps)) newDoc.assess.grasps = doc.assess.grasps;
   doc = newDoc; step = 1;
   $('#ai-modal').classList.remove('open');
   $('#ai-paste-text').value='';
@@ -1293,7 +1340,11 @@ function buildDocumentXml(){
   const ew = i => TW(E[i]);
   const elbl = (t,i) => wTc(wText(t,{jc:'center', r:{b:true}}), {w:ew(i), lbl:true});
   const cc = (t,i,vm) => wTc(vm==='cont' ? wP('') : wText(t,{jc:'center'}), {w:ew(i), vm, vc:true});
+  const graspsRow = hasGrasps(a.grasps)
+    ? wTr(elbl('수행 과제\n(GRASPS)',0) + wTc(graspsLines(a.grasps).map(([h,t])=>wP(wRun(h,{b:true})+wRun(': '+t))).join(''), {w:ew(1)+ew(2)+ew(3)+ew(4), span:4, vc:true}))
+    : '';
   const evalTbl = wTbl(E,
+    graspsRow +
     wTr(['평가 문항','구분','평가 기준','방법','시기'].map(elbl).join('')) +
     wTr(cc(a.item,0,'restart') + cc('상',1) + wTc(wText(a.high),{w:ew(2),vc:true}) + cc(a.method,3,'restart') + cc(a.when,4,'restart')) +
     wTr(cc('',0,'cont') + cc('중',1) + wTc(wText(a.mid),{w:ew(2),vc:true}) + cc('',3,'cont') + cc('',4,'cont')) +
