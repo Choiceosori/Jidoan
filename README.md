@@ -6,6 +6,7 @@
 ## 기능
 - 백워드 설계 순서의 6단계 입력: 기본 정보 → 평가(상·중·하) → AI·디지털 도구 → 목표·의도·핵심 질문 → 교수·학습 활동(도입·전개·정리) → 미리보기·출력
 - AI·디지털 도구 목록(7개 분야, 31종)에서 선택 + 직접 추가, 도구별 활용 계획 입력 → 자료(□) 칸과 AI 프롬프트에 반영
+- 2022 개정 교육과정 성취기준 607개(13개 교과) — 교과·학년군·영역별 드롭다운으로 선택 (`standards-data.js`)
 - 실시간 A4 세로 미리보기
 - **DOCX 다운로드** (한글·MS워드에서 편집 가능)
 - 🤖 **AI 초안 도우미**: 프롬프트를 복사해 챗GPT·Gemini·클로드 등에 붙여넣고, 응답(JSON)을 다시 붙여넣으면 초안이 채워짐 (API 키 불필요)
@@ -14,7 +15,7 @@
 
 ## 사용법
 - 📖 **작성 방법**: 앱 상단의 「작성 방법」 버튼 또는 `manual.html` — 화면 사진과 함께 단계별로 안내
-- 바로 쓰기: `index.html`을 내려받아 브라우저로 열기
+- 바로 쓰기: `index.html`과 `standards-data.js`를 같은 폴더에 두고 `index.html`을 브라우저로 열기
 - 웹에 올리기: 저장소 **Settings → Pages → Branch: `main` / root** 를 선택하면 `https://<사용자명>.github.io/Jidoan/` 에서 열 수 있음
 
 ## 입력 기호
@@ -31,3 +32,5 @@
 `examples/` 폴더에 예시안으로 만든 DOCX 출력물이 있습니다.
 
 프로그램 제작자: 구운초등학교 박선택
+
+성취기준 데이터: 교육부 고시 제2022-33호(국가교육과정정보센터 공개 PDF) 원문, [korean-elementary-learning-map-mcp](https://github.com/taehyeonglim/korean-elementary-learning-map-mcp) (MIT, © 2026 DECK) 추출본을 정리하여 사용.
