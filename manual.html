@@ -66,6 +66,11 @@ code{background:#f1f4f9;border-radius:6px;padding:1px 6px;font-size:.92em}
 .steps li{counter-increment:s;position:relative;padding:10px 0 10px 46px}
 .steps li::before{content:counter(s);position:absolute;left:0;top:8px;width:32px;height:32px;border-radius:10px;background:var(--accent);color:#fff;font-weight:800;line-height:32px;text-align:center}
 
+/* WHERETO 글자 */
+.wt{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;color:#fff;font:800 14px/1 sans-serif;vertical-align:middle}
+.wt-W{background:#1f4e8c}.wt-H{background:#3a8f3a}.wt-E1{background:#e08a00}.wt-R{background:#7b4fb3}.wt-E2{background:#2f6fd0}.wt-T{background:#d6455c}.wt-O{background:#179a8a}
+table.wt-table td:first-child{width:auto;white-space:nowrap}
+table.wt-table td:first-child .wt{margin-right:8px}
 details.faq{border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:10px 0;background:#fbfcfe}
 details.faq summary{font-weight:700;cursor:pointer}
 details.faq p{margin:8px 0 0}
@@ -103,6 +108,7 @@ details.faq p{margin:8px 0 0}
     <a href="#start">시작하기 전에</a>
     <a href="#home">홈 화면</a>
     <a href="#layout">작성 화면 둘러보기</a>
+    <a href="#whereto">백워드 설계 WHERETO</a>
     <a class="sub" href="#s1">1단계 · 기본 정보</a>
     <a class="sub" href="#s2">2단계 · 평가</a>
     <a class="sub" href="#s3">3단계 · AI·디지털 도구</a>
@@ -157,6 +163,26 @@ details.faq p{margin:8px 0 0}
         <li><b>💾 JSON 저장</b> — 작성 내용을 파일로 내려받아요. 다른 컴퓨터에서 이어 쓰거나 백업할 때 사용해요.</li>
         <li><b>자동 저장됨 ✓</b> — 입력할 때마다 자동으로 저장되고 있다는 표시예요.</li>
       </ol>
+    </section>
+
+    <section id="whereto">
+      <h2>백워드 설계 WHERETO</h2>
+      <p class="lead">학생이 주도적으로 배우고 깊이 이해하도록 돕는 7가지 수업 설계 원리예요. 앱 곳곳의 <b>색깔 글자</b>가 그 자리에 어떤 원리가 녹아 있는지 알려 줘요.</p>
+      <figure class="narrow"><img src="manual/img/02b-whereto.png" alt="WHERETO 글자와 설명"><figcaption>글자에 마우스를 올리면 설명이 나와요 (휴대폰·태블릿은 글자를 누르세요)</figcaption></figure>
+      <ul>
+        <li>작성 화면 맨 위 <b>「백워드 설계 WHERETO」</b> 띠의 글자 → 그 원리의 뜻과, 이 앱에서 어디에 쓰이는지 전체 목록</li>
+        <li>각 단계 제목 옆 글자 → <b>「📍 여기서는」</b>: 바로 그 칸에서 원리가 어떻게 드러나는지</li>
+      </ul>
+      <table class="sym wt-table">
+        <tr><th>원리</th><th>뜻</th><th>이 앱에서는</th></tr>
+        <tr><td><span class="wt wt-W">W</span>Where/Why</td><td>학습 목표와 이유를 명확히</td><td>1단계 성취기준 · 2단계 평가를 먼저 정하기 · 4단계 학습목표 · 5단계 학습 문제</td></tr>
+        <tr><td><span class="wt wt-H">H</span>Hook/Hold</td><td>흥미 유발과 주의 집중</td><td>4단계 핵심 질문 · 5단계 도입 동기유발 · 핵심 발문</td></tr>
+        <tr><td><span class="wt wt-E1">E</span>Explore/Experience</td><td>직접 탐구하고 경험</td><td>3단계 AI·디지털 도구 · 5단계 전개 【활동1】【활동2】</td></tr>
+        <tr><td><span class="wt wt-R">R</span>Reflect/Revise</td><td>피드백으로 다시 생각하고 고치기</td><td>3단계 AI 피드백 도구 · 5단계 전개 발문·동료 피드백 · 정리</td></tr>
+        <tr><td><span class="wt wt-E2">E</span>Evaluate</td><td>스스로 이해도 평가</td><td>2단계 상·중·하 기준 · 5단계 ☑ 평가 · 정리 「알게 된 점」</td></tr>
+        <tr><td><span class="wt wt-T">T</span>Tailored</td><td>학생에 맞춘 개별화</td><td>1단계 대상·학생 수 · 2단계 「하」 지원 · 3단계 맞춤형 도구 · 4단계 수업자 의도 · 5단계 학습 형태</td></tr>
+        <tr><td><span class="wt wt-O">O</span>Organized</td><td>학습 경험의 구조화</td><td>평가 → 도구 → 목표 → 활동 순서 · 5단계 도입-전개-정리와 시간 배분 · 6단계 작성 점검</td></tr>
+      </table>
     </section>
 
     <section id="s1">

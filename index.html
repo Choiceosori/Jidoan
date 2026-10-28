@@ -130,6 +130,22 @@ details.cat summary{font-weight:700;cursor:pointer;padding:4px 0}
 .modal-body textarea{font-family:ui-monospace,Consolas,monospace;font-size:13px}
 .notice{background:#fff8e6;border:1px solid #f5d27a;border-radius:8px;padding:10px 12px;font-size:13.5px;margin:10px 0}
 
+/* WHERETO 글자 배지와 설명 말풍선 */
+.wt{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;color:#fff;font:800 12.5px/1 sans-serif;margin-left:4px;vertical-align:middle;cursor:help;box-shadow:0 1px 2px rgba(0,0,0,.18);position:relative;top:-1px}
+.wt:focus{outline:2px solid var(--ink);outline-offset:1px}
+.wt-W{background:#1f4e8c}.wt-H{background:#3a8f3a}.wt-E1{background:#e08a00}.wt-R{background:#7b4fb3}.wt-E2{background:#2f6fd0}.wt-T{background:#d6455c}.wt-O{background:#179a8a}
+.wt-strip{display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 14px;margin-bottom:12px;font-size:13.5px;color:var(--muted)}
+.wt-strip b{color:var(--ink)}
+.wt-strip .wt{width:26px;height:26px;font-size:14px;margin-left:0}
+#wt-tip{position:fixed;z-index:70;max-width:340px;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(15,23,42,.18);padding:12px 14px;font-size:13.5px;line-height:1.55;display:none;pointer-events:none}
+#wt-tip.show{display:block}
+#wt-tip .hd{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+#wt-tip .hd .wt{margin:0;width:26px;height:26px;font-size:14px;top:0}
+#wt-tip .hd b{font-size:15px}
+#wt-tip .hd span.ko{color:var(--muted);font-size:13px}
+#wt-tip .q{color:var(--muted);font-style:italic;margin:4px 0 0}
+#wt-tip .here{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+#wt-tip ul{margin:4px 0 0;padding-left:18px}
 #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:90vw}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -141,7 +157,9 @@ details.cat summary{font-weight:700;cursor:pointer;padding:4px 0}
 }
 @media (max-width:640px){
   .grid2,.grid3,.grid4{grid-template-columns:minmax(0,1fr)}
-  .topbar .doc-name{display:none}
+  .topbar .doc-name,.topbar .autosave{display:none}
+  .topbar{flex-wrap:wrap;row-gap:8px}
+  .topbar .logo{flex-basis:100%}
 }
 @media print{
   @page{size:A4 portrait;margin:0}
@@ -191,6 +209,7 @@ details.cat summary{font-weight:700;cursor:pointer;padding:4px 0}
   </div>
   <div class="guide">
     <h3>작성 흐름</h3>
+    <div id="home-wt"></div>
     <ol>
       <li><b>기본 정보</b> — 일시·대상·단원·차시·장소를 입력하고, 교과에 맞는 성취기준을 목록에서 고릅니다.</li>
       <li><b>평가</b> — 백워드 설계에 따라 평가 문항과 상·중·하 기준, 방법, 시기를 먼저 정합니다.</li>
@@ -207,6 +226,7 @@ details.cat summary{font-weight:700;cursor:pointer;padding:4px 0}
 <!-- ═════════ 위저드 ═════════ -->
 <div id="view-wizard" class="wizard" style="display:none">
   <section class="form-col">
+    <div id="wiz-wt"></div>
     <nav class="stepnav" id="stepnav"></nav>
     <div id="step-content"></div>
   </section>
@@ -303,6 +323,28 @@ const TOOL_CATALOG = [
 const TOOL_DESC = Object.fromEntries(TOOL_CATALOG.flatMap(c=>c.items));
 /* 도구 이름에서 본문 검색용 낱말 추출: 'Padlet (패들렛)' → ['Padlet','패들렛'] */
 const toolKeys = name => String(name).split(/\s*[()/]\s*/).map(x=>x.trim()).filter(x=>x.length>1);
+
+/* 백워드 설계 WHERETO: 각 요소의 설명과 이 앱에서 드러나는 곳 */
+const WHERETO = {
+  W:{ l:'W', name:'Where/Why', ko:'방향과 이유', desc:'학습 목표와 학습 이유(필요성)를 명확히 이해하도록 돕습니다.', q:'우리는 어디로 가고 있으며, 왜 학습해야 할까?',
+      app:['1단계 성취기준 — 수업의 도착점','2단계 평가 — 어디까지 도달해야 하는지 먼저 정하기','4단계 학습목표','5단계 학습 문제와 ❶❷ 학습 순서'] },
+  H:{ l:'H', name:'Hook/Hold', ko:'흥미 유발과 집중', desc:'흥미 유발과 주의 집중을 위한 질문, 과제, 자료를 활용합니다.', q:'무엇이 우리를 궁금하게 만들까?',
+      app:['4단계 핵심 질문','5단계 도입 — 본시 내용으로 동기유발, 그 자료를 전개에서 재활용','5단계 핵심 발문 2~3개'] },
+  E1:{ l:'E', name:'Explore/Experience', ko:'탐구와 경험', desc:'핵심 내용을 깊이 탐구하고 직접 경험하며 관련 지식과 기술을 습득합니다.', q:'직접 탐구하고 경험하며 배운다!',
+      app:['3단계 AI·디지털 도구 — 탐구를 돕는 도구 고르기','5단계 전개 【활동1】【활동2】 — 집중 탐구 활동'] },
+  R:{ l:'R', name:'Reflect/Revise', ko:'성찰과 수정', desc:'수행 과정에서 피드백을 통해 다시 생각하고 수정하며 성찰합니다.', q:'어떻게 더 나아질 수 있을까?',
+      app:['3단계 AI 피드백 수업 도구','5단계 전개 — 발문과 동료 피드백','5단계 정리 — 학습 문제 다시 알아보기, 어려웠던 점 돌아보기'] },
+  E2:{ l:'E', name:'Evaluate', ko:'자기 평가', desc:'자신의 학습 성과와 이해도를 스스로 평가해 봅니다.', q:'나는 얼마나 이해했고, 어떤 성장을 했을까?',
+      app:['2단계 평가 — 상·중·하 기준을 자기 평가 기준으로도 활용','5단계 ☑ 과정중심평가','5단계 정리 — 알게 된 점 나누기'] },
+  T:{ l:'T', name:'Tailored', ko:'개별화', desc:'학생들의 학습 스타일, 선행 지식 등에 맞춰 수업을 개별화합니다.', q:'나에게 맞는 방법으로 배운다!',
+      app:['1단계 대상·학생 수 — 우리 반의 출발점','2단계 평가 「하」 — 도움이 필요한 학생 지원','3단계 맞춤형 학습 도구','4단계 수업자 의도 — 학생 실태 근거','5단계 학습 형태 [짝]·[모둠]·[개인]'] },
+  O:{ l:'O', name:'Organized', ko:'조직화', desc:'학습 경험을 효과적으로 구조화하여 학습 목표 달성을 촉진합니다.', q:'체계적으로 구성하여 목표에 도달한다!',
+      app:['전체 순서 — 평가 → 도구 → 목표 → 활동(백워드 설계)','5단계 도입-전개-정리와 시간 배분','6단계 작성 점검'] }
+};
+const WT_ORDER = ['W','H','E1','R','E2','T','O'];
+/* 배지: here = 이 자리에서 그 요소가 어떻게 드러나는지 */
+const wt = (k, here) => `<span class="wt wt-${k}" data-wt="${k}" data-here="${esc(here||'')}" tabindex="0">${WHERETO[k].l}</span>`;
+const wtStrip = () => `<div class="wt-strip"><b>백워드 설계 WHERETO</b> ${WT_ORDER.map(k=>wt(k)).join('')} <span>· 글자에 마우스를 올리면 설명이 보여요</span></div>`;
 
 /* 성취기준 데이터(standards-data.js): {c 코드, s 교과, g 학년군, d 영역, t 성취기준} */
 const STD_DATA = Array.isArray(window.STANDARDS) ? window.STANDARDS : [];
@@ -437,6 +479,8 @@ function showWizard(){
 }
 function openDoc(newDoc, startStep){ doc = newDoc; step = startStep||1; saveLocal(); showWizard(); }
 
+function renderWtStrips(){ ['#home-wt','#wiz-wt'].forEach(id=>{ const el=$(id); if(el) el.innerHTML = wtStrip(); }); }
+
 function renderDraftSlot(){
   const slot = $('#draft-slot');
   const saved = loadLocal();
@@ -493,7 +537,7 @@ function stepBasic(){
   const m = doc.meta;
   return `
   <div class="step-card">
-    <h3>기본 정보</h3>
+    <h3>기본 정보${wt('T','대상 학년과 학생 수로 우리 반의 출발점을 확인해요.')}</h3>
     <p class="desc">과정안 맨 위 표(일시·대상·지도교사·단원·차시·장소)에 들어갑니다.</p>
     <div class="grid3">
       ${field('교과', `<select data-bind="meta.subject"><option value="">선택하세요</option>${SUBJECTS.map(s=>`<option ${m.subject===s?'selected':''}>${s}</option>`).join('')}</select>`, '제목 「질문이 넘치는 (  )과」에 들어가요.')}
@@ -515,7 +559,7 @@ function stepBasic(){
     </div>
   </div>
   <div class="step-card">
-    <h3>성취기준</h3>
+    <h3>성취기준${wt('W','성취기준으로 이 수업의 도착점(어디로 가는지)을 먼저 정해요.')}</h3>
     <p class="desc">양식의 「성취기준」 칸에 들어갑니다. 교과를 고르면 2022 개정 교육과정 성취기준을 목록에서 고를 수 있어요.</p>
     <div id="std-picker"></div>
     ${field('선택한 성취기준', ta('standards', doc.standards, '목록에서 고르거나 직접 입력하세요.\n예: [4사06-01] 지역의 문화유산을 통해 …', 3), '여러 개면 줄바꿈으로 구분하세요. 직접 고쳐 써도 돼요.')}
@@ -574,18 +618,18 @@ function stepGoal(){
     </div>`).join('');
   return `
   <div class="step-card">
-    <h3>학습목표</h3>
+    <h3>학습목표${wt('W','학생이 이 수업에서 무엇을 할 수 있게 되는지 분명히 해요.')}</h3>
     <p class="desc">양식의 「학습목표」 칸에 들어갑니다. 1단계의 성취기준과 2단계의 평가에 맞춰 써요.</p>
     ${field('학습목표', ta('goal', doc.goal, '예: 디지털 도구를 활용하여 우리 지역의 국가유산을 조사하고, 그 역사적 의미를 설명할 수 있다.', 2))}
   </div>
   <div class="step-card">
-    <h3>수업자 의도</h3>
+    <h3>수업자 의도${wt('T','학생 실태를 근거로 우리 반에 맞춘 초점을 정해요.')}${wt('O','방법·자료·내용·발문 중 핵심을 골라 수업을 짜임새 있게 묶어요.')}</h3>
     <div class="tip-box">→ 수업의 흐름(도입-전개-정리)을 설명하는 것이 <b>아닙니다</b>.<br>
     → 본시 성취기준, 교과 역량, 학습 목표, 실태 분석을 통해 목표에 도달하기 위해 <b>학습 방법, 자료, 내용(재구성), 발문 중 어떤 것을 핵심적으로 할 것인지 초점화</b>하여 진술합니다.</div>
     ${field('수업자 의도', ta('intent', doc.intent, '예: 본 차시는 … 에 초점을 둔다. 학생들은 … 이에 … 을 핵심으로 한다.', 6))}
   </div>
   <div class="step-card">
-    <h3>핵심 질문</h3>
+    <h3>핵심 질문${wt('H','궁금증을 일으키고, 수업 내내 생각을 붙잡아 두는 질문이에요.')}</h3>
     <p class="desc">→ 1~2가지, 어느 단계에서 할지 명시합니다.</p>
     ${qs}
     ${doc.questions.length<2?'<button class="btn" data-action="add-q">＋ 핵심 질문 추가</button>':''}
@@ -633,20 +677,20 @@ function stepFlow(){
     </div>`).join('');
   return `
   <div class="step-card">
-    <h3>학습 문제</h3>
+    <h3>학습 문제${wt('W','무엇을 왜 배우는지 학생과 함께 확인해요.')}${wt('O','❶❷ 번호로 학습 순서를 구조화해요.')}</h3>
     <p class="desc">「학습 문제 확인하기」 줄 아래에 상자로 들어갑니다. ❶❷로 학습 순서를 표시하고, 중심 낱말은 <b>__낱말__</b>처럼 감싸면 밑줄이 그어져요.</p>
     <div class="tbar">${['❶','❷','❸'].map(c=>`<button type="button" data-action="ins" data-target="problem" data-ins="${c}">${c}</button>`).join('')}
       <button type="button" data-action="underline" data-target="problem">__밑줄__ (선택 영역)</button></div>
     ${inp('problem', doc.problem, '예: ❶인물의 __성격__을 짐작하며 ❷이야기를 읽어 봅시다.')}
   </div>
   <div class="step-card">
-    <h3>교수·학습 활동</h3>
+    <h3>교수·학습 활동${wt('O','도입-전개-정리와 시간 배분으로 학습 경험을 구조화해요.')}</h3>
     <div class="tip-box"><b>양식 작성 안내</b>
       <ul>
         <li>▣ 형식 요소보다는 <b>내용 요소</b>로 제시 · ▪ ~떠올리기, ~알아보기 · - 하위 내용</li>
-        <li><b>도입</b>: 최대 5분, 본시 내용을 동기유발화, 전개에서 동기유발 자료 재활용, 학습 문제 중심 낱말에 밑줄, 학습 순서는 번호로 명료화</li>
-        <li><b>전개</b>: 활동 최대 2개, 집중 활동, 핵심 발문 2~3개, 짝·모둠·전체 활동, 삶과 연결하기, 학습자 중심 용어, 과정중심평가 명시(☑)</li>
-        <li><b>정리</b>: 학습 문제 다시 알아보기, 알게 된 점(느낀 점·어려움·즐거움·궁금함 중 선택, 차시 예고 ✕), 친구와 함께 공부하며 도움받은 것, 생활과 연결하기</li>
+        <li><b>도입</b>${wt('H','본시 내용으로 동기유발하고 그 자료를 전개에서 다시 써요.')}${wt('W','학습 문제와 학습 활동을 확인해요.')}: 최대 5분, 본시 내용을 동기유발화, 전개에서 동기유발 자료 재활용, 학습 문제 중심 낱말에 밑줄, 학습 순서는 번호로 명료화</li>
+        <li><b>전개</b>${wt('E1','【활동1】【활동2】로 직접 탐구하고 경험해요.')}${wt('R','발문과 동료 피드백으로 다시 생각하고 고쳐요.')}${wt('T','짝·모둠·개인 등 학습 형태로 학생에게 맞춰요.')}: 활동 최대 2개, 집중 활동, 핵심 발문 2~3개, 짝·모둠·전체 활동, 삶과 연결하기, 학습자 중심 용어, 과정중심평가 명시(☑)</li>
+        <li><b>정리</b>${wt('R','학습 문제를 다시 보며 어려웠던 점을 돌아봐요.')}${wt('E2','알게 된 점을 말하며 스스로 이해도를 평가해요.')}: 학습 문제 다시 알아보기, 알게 된 점(느낀 점·어려움·즐거움·궁금함 중 선택, 차시 예고 ✕), 친구와 함께 공부하며 도움받은 것, 생활과 연결하기</li>
       </ul></div>
     <div style="margin-bottom:12px"><span class="time-sum" id="time-sum"></span></div>
     ${rows}
@@ -670,7 +714,7 @@ function stepAssess(){
   const a = doc.assess;
   return `
   <div class="step-card">
-    <h3>평가</h3>
+    <h3>평가${wt('W','도달해야 할 모습을 활동보다 먼저 정해요(백워드 설계).')}${wt('E2','상·중·하 기준을 학생 자기 평가 기준으로도 쓸 수 있어요.')}${wt('T','「하」 수준의 「도움을 받아」는 학생별 지원 계획이에요.')}</h3>
     <p class="desc">과정안 아래쪽 평가 표(평가 문항 · 구분 · 평가 기준 · 방법 · 시기)에 들어갑니다.</p>
     <div class="tip-box"><b>백워드 설계</b> — 학생이 도달해야 할 모습(평가)을 먼저 정하고, 다음 단계에서 목표·질문을, 그다음 그 평가에 도달하도록 교수·학습 활동을 설계해요.</div>
     ${field('평가 문항', ta('assess.item', a.item, '예: 우리 지역의 국가유산을 조사하여 그 역사적 의미를 설명하였는가?', 2), '「~하였는가?」 형태로 씁니다.')}
@@ -706,7 +750,7 @@ function stepTools(){
     </details>`).join('');
   return `
   <div class="step-card">
-    <h3>AI·디지털 도구</h3>
+    <h3>AI·디지털 도구${wt('E1','도구로 직접 탐구하고 경험하는 활동을 설계해요.')}${wt('R','AI 피드백 도구로 수행 중에 다시 생각하고 고쳐요.')}${wt('T','맞춤형 학습 도구로 학생 수준에 맞춰요.')}</h3>
     <p class="desc">이 수업에서 쓸 도구를 고르고 활용 계획을 적어 주세요. 양식에 별도 칸은 없고, 교수·학습 활동의 자료(□) 칸과 AI 초안 프롬프트에 반영돼요.</p>
     <div class="tip-box">2단계에서 정한 <b>평가에 도달하는 데 도움이 되는 도구</b>만 골라요. 도구는 '답을 주는 도구'가 아니라 탐구를 돕는 도구로 활용합니다.</div>
     <label>선택한 도구 <span class="opt">(${doc.tools.length}개)</span></label>
@@ -728,7 +772,7 @@ function stepTools(){
 function stepExport(){
   return `
   <div class="step-card">
-    <h3>미리보기 · 출력</h3>
+    <h3>미리보기 · 출력${wt('O','작성 점검으로 짜임새(시간·활동 수·평가 명시)를 확인해요.')}</h3>
     <p class="desc">작성 점검을 확인하고 DOCX로 내려받으세요. 한글(HWP)과 MS워드에서 모두 열어 편집할 수 있어요.</p>
     <div class="export-bar">
       <button class="btn accent" data-action="download-docx">📄 DOCX 다운로드</button>
@@ -1332,7 +1376,36 @@ function downloadDocx(){
   toast('DOCX 파일로 저장했어요. 한글이나 워드에서 열어 마무리하세요!');
 }
 
+/* ═══════════════════ WHERETO 말풍선 ═══════════════════ */
+const wtTip = document.createElement('div'); wtTip.id = 'wt-tip'; document.body.appendChild(wtTip);
+let wtPinned = null;
+function showWt(el){
+  const k = el.dataset.wt, w = WHERETO[k]; if(!w) return;
+  const here = el.dataset.here;
+  wtTip.innerHTML = `<div class="hd"><span class="wt wt-${k}">${w.l}</span><b>${esc(w.name)}</b><span class="ko">${esc(w.ko)}</span></div>
+    <div>${esc(w.desc)}</div><div class="q">“${esc(w.q)}”</div>
+    <div class="here">${here ? `📍 <b>여기서는</b> ${esc(here)}` : `📍 <b>이 앱에서는</b><ul>${w.app.map(a=>`<li>${esc(a)}</li>`).join('')}</ul>`}</div>`;
+  wtTip.classList.add('show');
+  const r = el.getBoundingClientRect(), tw = wtTip.offsetWidth, th = wtTip.offsetHeight;
+  let x = Math.min(Math.max(8, r.left + r.width/2 - tw/2), innerWidth - tw - 8);
+  let y = r.bottom + 8; if(y + th > innerHeight - 8) y = Math.max(8, r.top - th - 8);
+  wtTip.style.left = x+'px'; wtTip.style.top = y+'px';
+}
+function hideWt(){ wtTip.classList.remove('show'); wtPinned = null; }
+document.addEventListener('mouseover', e=>{ const el=e.target.closest('[data-wt]'); if(el && !el.closest('#wt-tip')) showWt(el); });
+document.addEventListener('mouseout', e=>{ const el=e.target.closest('[data-wt]'); if(el && !wtPinned && !el.contains(e.relatedTarget)) hideWt(); });
+document.addEventListener('focusin', e=>{ const el=e.target.closest('[data-wt]'); if(el) showWt(el); });
+document.addEventListener('focusout', e=>{ if(e.target.closest('[data-wt]')) hideWt(); });
+/* 터치 화면: 누르면 고정, 다른 곳을 누르면 닫힘 */
+document.addEventListener('click', e=>{
+  const el = e.target.closest('[data-wt]');
+  if(el){ e.preventDefault(); if(wtPinned===el){ hideWt(); } else { showWt(el); wtPinned = el; } return; }
+  if(wtPinned) hideWt();
+}, true);
+window.addEventListener('scroll', ()=>{ if(!wtPinned) wtTip.classList.remove('show'); }, {passive:true});
+
 /* ═══════════════════ 초기화 ═══════════════════ */
+renderWtStrips();
 renderDraftSlot();
 </script>
 </body>
